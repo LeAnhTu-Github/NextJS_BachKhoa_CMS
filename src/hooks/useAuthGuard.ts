@@ -24,11 +24,10 @@ export const useAuthGuard = () => {
       router.push('/dang-nhap')
       return
     }
-
     if (token) {
       getUserInfo()
     }
-  }, [pathname])
+  }, [pathname, getUserInfo, router])
 
   return {
     user,
