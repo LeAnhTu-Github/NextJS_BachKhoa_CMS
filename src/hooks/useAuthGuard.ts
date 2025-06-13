@@ -27,7 +27,7 @@ export const useAuthGuard = () => {
     if (token) {
       getUserInfo()
     }
-  }, [pathname, getUserInfo, router])
+  }, [pathname])
 
   return {
     user,

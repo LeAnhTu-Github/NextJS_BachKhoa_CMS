@@ -27,3 +27,12 @@ export type User = {
   updateTime: string;
 };
 
+export type UserListResponse = {
+  pageIndex: number,
+  pageSize: number,
+  totalPages: number,
+  totalRecords: number,
+  beginIndex: number,
+  endIndex: number,
+  data: User[]
+}
