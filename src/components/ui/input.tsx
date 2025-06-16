@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
@@ -18,4 +20,61 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   )
 }
 
-export { Input }
+interface FloatingLabelInputProps extends React.ComponentProps<typeof Input> {
+  label: string
+}
+
+const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLabelInputProps>(
+  ({ className, label, id, ...props }, ref) => {
+    const [isFocused, setIsFocused] = React.useState(false)
+    const [hasValue, setHasValue] = React.useState(false)
+
+    const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+      setIsFocused(true)
+      props.onFocus?.(e)
+    }
+
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+      setIsFocused(false)
+      props.onBlur?.(e)
+    }
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setHasValue(e.target.value.length > 0)
+      props.onChange?.(e)
+    }
+
+    return (
+      <div className="relative">
+        <Input
+          ref={ref}
+          id={id}
+          className={cn(
+            "pt-6 pb-2",
+            className
+          )}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onChange={handleChange}
+          {...props}
+        />
+        <label
+          htmlFor={id}
+          className={cn(
+            "absolute left-3 transition-all duration-200 pointer-events-none",
+            "text-muted-foreground",
+            isFocused || hasValue
+              ? "text-xs -translate-y-2.5"
+              : "text-sm translate-y-1.5"
+          )}
+        >
+          {label}
+        </label>
+      </div>
+    )
+  }
+)
+
+FloatingLabelInput.displayName = "FloatingLabelInput"
+
+export { Input, FloatingLabelInput }

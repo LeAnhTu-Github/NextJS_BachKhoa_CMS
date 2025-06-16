@@ -1,0 +1,399 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import NextImage from "next/image";
+import { imageTypes } from "@/types/Image";
+import { Group, User } from "@/types/User";
+import api from "@/services/api";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import * as z from "zod";
+import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { ChevronDown } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const formSchema = z.object({
+  avatar: z.string().nullable(),
+  fullName: z.string().min(1, { message: "Vui lòng nhập Họ & tên" }),
+  email: z.string().email({ message: "Vui lòng nhập Email" }),
+  phone: z.string().min(1, { message: "Vui lòng nhập Số điện thoại" }),
+  position: z.string().min(1, { message: "Vui lòng chọn Chức vụ" }),
+  status: z.string().min(1, { message: "Vui lòng chọn Trạng thái" }),
+  groupIds: z.array(z.number()).min(1, { message: "Vui lòng chọn Nhóm người dùng" }),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
+type ModalEditUserProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onRefresh: () => void;
+  user: User;
+};
+
+const ModalEditUser: React.FC<ModalEditUserProps> = ({
+  open,
+  onOpenChange,
+  onRefresh,
+  user,
+}) => {
+  const [image, setImage] = useState<imageTypes | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [groups, setGroups] = useState<Group[]>([]);
+  const isMobile = useIsMobile();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+  } = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      avatar: user.avatar,
+      fullName: user.fullName,
+      email: user.email,
+      phone: user.phone,
+      position: user.position,
+      status: user.status,
+      groupIds: user.groups.map(group => group.id),
+    },
+  });
+
+  useEffect(() => {
+    if (user.avatar) {
+      setImage({
+        requestId: "",
+        at: "",
+        data: {
+          url: user.avatar,
+          name: "",
+          ext: ""
+        },
+        error: {
+          code: 0,
+          message: ""
+        }
+      });
+    }
+  }, [user]);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setIsUploading(true);
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/file/upload`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      const { data, error } = response.data;
+      
+      if (error.code === 0) {
+        setImage({
+          requestId: response.data.requestId,
+          at: response.data.at,
+          data: {
+            url: data.url,
+            name: data.name,
+            ext: data.ext
+          },
+          error: {
+            code: error.code,
+            message: error.message
+          }
+        });
+        setValue("avatar", data.url, { shouldValidate: true });
+      } else {
+        throw new Error(error.message);
+      }
+    } catch (error) {
+      setImage(null);
+      setValue("avatar", "", { shouldValidate: true });
+      console.error("Error uploading file:", error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const fetchGroups = async () => {
+    const response = await api.get('/auth/group');
+    const { data, error } = response.data;
+    if (error.code === 0) {
+      setGroups(data);
+    }
+  };
+
+  useEffect(() => {
+    fetchGroups();
+  }, []);
+
+  const handleRemoveImage = () => {
+    setImage(null);
+    setValue("avatar", null, { shouldValidate: true });
+  };
+
+  const handleGroupChange = (value: number) => {
+    const currentGroups = watch("groupIds") || [];
+    const newGroups = currentGroups.includes(value)
+      ? currentGroups.filter((id) => id !== value)
+      : [...currentGroups, value];
+    setValue("groupIds", newGroups, { shouldValidate: true });
+  };
+
+  const updateUser = async (data: FormValues) => {
+    try {
+      const response = await api.put(`/user/${user.id}`, data);
+      if (response.status >= 200 && response.status < 300) {
+        toast.success("Cập nhật người dùng thành công");
+        onOpenChange(false);
+        onRefresh();
+      } else {
+        toast.error("Có lỗi xảy ra khi cập nhật người dùng");
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Có lỗi xảy ra khi cập nhật người dùng");
+      } else {
+        toast.error("Có lỗi xảy ra khi cập nhật người dùng");
+      }
+    }
+  };
+
+  const onSubmit = async (data: FormValues) => {
+    await updateUser(data);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        showCloseButton={false}
+        className="max-w-none p-0 rounded-lg border-none w-9/10 overflow-auto lg:w-[1000px] lg:max-w-[1000px] "
+      >
+        <div className="flex flex-col w-full h-full">
+          <DialogHeader className="bg-[#A52834] border-none rounded-t-lg px-8 py-4">
+            <DialogTitle className="text-white text-2xl font-semibold">
+              Cập nhật người dùng
+            </DialogTitle>
+            <DialogClose
+              className="absolute right-6 top-3 text-white text-2xl"
+              aria-label="Đóng"
+              tabIndex={0}
+              onKeyDown={(e) =>
+                (e.key === "Enter" || e.key === " ") && onOpenChange(false)
+              }
+            >
+              ×
+            </DialogClose>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto">
+            <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} bg-white px-8 py-4 gap-4 flex-1`}>
+              <div className={`${isMobile ? 'w-full' : 'w-1/3'} flex flex-col items-center justify-center gap-4`}>
+                {!image ? (
+                  <div className={`w-full flex flex-col items-center justify-center bg-red-50 rounded-lg cursor-pointer transition hover:bg-red-100 ${isMobile ? 'h-36' : 'h-72'}`}>
+                    <Label
+                      htmlFor="avatar"
+                      className="w-full h-full flex flex-col items-center justify-center cursor-pointer"
+                      tabIndex={0}
+                      aria-label="Tải ảnh lên"
+                    >
+                      <Input
+                        id="avatar"
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        disabled={isUploading}
+                      />
+                      <NextImage
+                        src="/images/camera.png"
+                        alt="Upload icon"
+                        width={60}
+                        height={60}
+                        priority
+                      />
+                      <span className="text-gray-600 text-lg font-medium">
+                        {isUploading ? "Đang tải lên..." : "Tải ảnh lên"}
+                      </span>
+                    </Label>
+                  </div>
+                ) : (
+                  <div className={`relative w-full ${isMobile ? 'h-36' : 'h-72'}`}>
+                    <NextImage
+                      src={image.data.url || ""}
+                      alt="User avatar"
+                      width={288}
+                      height={288}    
+                      className={`rounded-lg w-full object-cover ${isMobile ? 'h-36' : 'h-72'}`}
+                      priority
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition"
+                      aria-label="Xóa ảnh"
+                      tabIndex={0}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+              </div>
+              <form id="edit-user-form" className={`${isMobile ? 'w-full' : 'w-2/3'} flex flex-col gap-8`} onSubmit={handleSubmit(onSubmit)}>
+                <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-4`}>
+                  <Input
+                    className={`${isMobile ? 'w-full' : 'w-1/2'} ${errors.fullName ? "border-red-500" : ""}`}
+                    placeholder="Họ & tên (*)"
+                    aria-label="Họ & tên"
+                    tabIndex={0}
+                    {...register("fullName", { required: "Vui lòng nhập Họ & tên" })}
+                  />
+                  {errors.fullName && <span className="text-red-500">{errors.fullName.message}</span>}
+                  <Input
+                    className={`${isMobile ? 'w-full' : 'w-1/2'} ${errors.email ? "border-red-500" : ""}`}
+                    placeholder="Email (*)"
+                    aria-label="Email"
+                    tabIndex={0}
+                    {...register("email", { required: "Vui lòng nhập Email" })}
+                  />
+                  {errors.email && <span className="text-red-500">{errors.email.message}</span>}
+                </div>
+                <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-4`}>
+                  <Input
+                    className={`${isMobile ? 'w-full' : 'w-1/2'} ${errors.phone ? "border-red-500" : ""}`}
+                    placeholder="Số điện thoại (*)"
+                    aria-label="Số điện thoại"
+                    tabIndex={0}
+                    {...register("phone", { required: "Vui lòng nhập Số điện thoại" })}
+                  />
+                  {errors.phone && <span className="text-red-500">{errors.phone.message}</span>}
+                  <Input
+                    className={`${isMobile ? 'w-full' : 'w-1/2'} ${errors.position ? "border-red-500" : ""}`}
+                    placeholder="Chức vụ (*)"
+                    aria-label="Chức vụ"
+                    tabIndex={0}
+                    {...register("position", { required: "Vui lòng chọn Chức vụ" })}
+                  />
+                  {errors.position && <span className="text-red-500">{errors.position.message}</span>}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={`w-full justify-between ${errors.groupIds ? "border-red-500" : ""}`}
+                      >
+                        {watch("groupIds")?.length > 0
+                          ? `${watch("groupIds").map((group) => groups.find((g) => g.id === group)?.groupName).join(", ")}`
+                          : "Chọn nhóm người dùng"}
+                        <ChevronDown className="h-4 w-4 opacity-50" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent 
+                      className="w-[var(--radix-dropdown-menu-trigger-width)] overflow-y-auto"
+                      align="start"
+                    >
+                      {groups.map((group) => (
+                        <div
+                          key={group.id}
+                          className="flex items-center space-x-2 px-2 py-1.5 hover:bg-accent"
+                        >
+                          <Checkbox
+                            id={group.id.toString()}
+                            checked={watch("groupIds")?.includes(group.id)}
+                            onCheckedChange={() => handleGroupChange(group.id)}
+                          />
+                          <label
+                            htmlFor={group.id.toString()}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            {group.groupName}
+                          </label>
+                        </div>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  {errors.groupIds && <span className="text-red-500">Vui lòng chọn Nhóm người dùng</span>}
+                </div>
+                <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-4`}>
+                  <Select
+                    value={watch("status")}
+                    onValueChange={(value) => setValue("status", value, { shouldValidate: true })}
+                  >
+                    <SelectTrigger className={`${isMobile ? 'w-full' : 'w-1/2'} ${errors.status ? "border-red-500" : ""}`} aria-label="Trạng thái" tabIndex={0}> 
+                      <SelectValue placeholder="Trạng thái (*)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem className="text-[#A2212B] caret-[#A2212B]" value="ACTIVE">Kích hoạt</SelectItem>
+                      <SelectItem className="text-[#A2212B] caret-[#A2212B]" value="INACTIVE">Chưa kích hoạt</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.status && <span className="text-red-500">{errors.status.message}</span>}
+                </div>
+              </form>
+            </div>
+          </div>
+          <hr />
+          <DialogFooter className="flex flex-row justify-end gap-2 bg-white px-8 py-4 rounded-b-xl">
+            <DialogClose
+              className="max-w-[100px] h-9 px-2 py-2 rounded bg-white border border-[#A52834] text-[#A52834] font-semibold hover:bg-[#F8D7DA] transition flex items-center gap-2"
+              aria-label="Đóng"
+              tabIndex={0}
+            >
+              Đóng
+              <i className="mdi mdi-close text-xs"></i>
+            </DialogClose>
+            <button
+              type="submit"
+              form="edit-user-form"
+              className="max-w-[100px] h-9 px-2 py-2 rounded bg-[#A52834] text-white font-semibold hover:bg-[#7C1C25] transition flex items-center gap-2"
+              aria-label="Lưu"
+              tabIndex={0}
+            >
+              Lưu
+              <i className="mdi mdi-content-save-outline text-xs"></i>
+            </button>
+          </DialogFooter>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default ModalEditUser;

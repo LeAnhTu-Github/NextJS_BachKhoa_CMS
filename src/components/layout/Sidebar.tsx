@@ -60,6 +60,11 @@ const SidebarComponent = ({ pageRoles, sheetOpen, onSheetOpenChange }: SidebarCo
     }
   };
 
+  const handleLv2Click = (roleId: number) => {
+    router.push(lv2Roles.find((role) => role.id === roleId)?.pageUrl || "/");
+    setIsCollapsed(false);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent, roleId: number) => {
     if (e.key === "Enter" || e.key === " ") {
       handleLv1Click(roleId);
@@ -101,7 +106,7 @@ const SidebarComponent = ({ pageRoles, sheetOpen, onSheetOpenChange }: SidebarCo
                         className="text-white text-[15px] font-thin text-left py-2 px-4 rounded-lg hover:bg-[#B94B52] focus:outline-none truncate"
                         tabIndex={0}
                         aria-label={lv2.pageName}
-                        onClick={() => router.push(lv2.pageUrl)}
+                        onClick={() => handleLv2Click(lv2.id)}
                       >
                         {lv2.pageName}
                       </button>
@@ -162,7 +167,7 @@ const SidebarComponent = ({ pageRoles, sheetOpen, onSheetOpenChange }: SidebarCo
               className="text-white text-[15px] font-thin text-left py-2 px-4 rounded-lg hover:bg-[#B94B52] focus:outline-none truncate"
               tabIndex={0}
               aria-label={role.pageName}
-              onClick={() => router.push(role.pageUrl)}
+              onClick={() => handleLv2Click(role.id)}
             >
               {role.pageName}
             </button>

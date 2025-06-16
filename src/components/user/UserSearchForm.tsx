@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Select,
   SelectContent,
@@ -15,8 +14,8 @@ import {
 import { RefreshCw, Search, Plus } from "lucide-react";
 
 const formSchema = z.object({
-  fullName: z.string().optional().or(z.literal("")),
-  email: z.string().email().optional().or(z.literal("")),
+  fullName: z.string().optional(),
+  email: z.string().optional(),
   status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
 });
 
@@ -40,10 +39,9 @@ const UserSearchForm = ({
     defaultValues: {
       fullName: "",
       email: "",
-      status: "ACTIVE",
+      status: undefined,
     },
   });
-  const isMobile = useIsMobile();
   const handleSearch = (values: FormValues) => {
     console.log(values);
     onSearch?.(values);
