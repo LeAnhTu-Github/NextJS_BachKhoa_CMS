@@ -2,12 +2,12 @@
 import React, { useState, useEffect } from 'react'
 import { User, UserListResponse } from '@/types/User'
 import api from '@/services/api';
-import ListUser from '@/components/user/ListUser';
-import UserSearchForm from '@/components/user/UserSearchForm';
+import ListUser from '@/components/User/ListUser';
+import UserSearchForm from '@/components/User/UserSearchForm';
 import CustomPagination from '@/components/ui/custom-pagination';
-import ModalCreateUser from '@/components/user/ModalCreateUser';
+import ModalCreateUser from '@/components/User/ModalCreateUser';
 import { toast } from 'sonner';
-import ModalEditUser from '@/components/user/ModalEditUser';
+import ModalEditUser from '@/components/User/ModalEditUser';
 
 type FormValues = {
   fullName?: string;
