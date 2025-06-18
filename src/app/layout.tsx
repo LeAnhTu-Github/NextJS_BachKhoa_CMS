@@ -29,7 +29,7 @@ export default function RootLayout({
         <Toaster
           position="top-right"
           expand
-          duration={3000}
+          duration={5000}
           richColors
           closeButton
         />

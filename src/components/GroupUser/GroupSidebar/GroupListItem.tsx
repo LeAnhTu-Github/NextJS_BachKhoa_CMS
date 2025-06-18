@@ -5,7 +5,7 @@ import { PlusIcon } from "lucide-react";
 import { Group } from "@/types/User";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
 import { toast } from "sonner";
-import api from "@/services/api";
+import { createGroup } from "@/services/groupService";
 
 interface GroupListItemProps {
   groupList: Group[];
@@ -19,11 +19,11 @@ interface GroupFormData {
   description: string;
 }
 
-const GroupListItem = ({ 
-  groupList, 
-  refreshGroupList, 
+const GroupListItem = ({
+  groupList,
+  refreshGroupList,
   handleSelectGroup,
-  selectedGroupId 
+  selectedGroupId,
 }: GroupListItemProps) => {
   const [isOpenDialogCreateGroup, setIsOpenDialogCreateGroup] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,34 +43,28 @@ const GroupListItem = ({
   };
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [id]: value
+      [id]: value,
     }));
     if (errors[id as keyof GroupFormData]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [id]: undefined
+        [id]: undefined,
       }));
     }
   };
   const handleCreateGroup = async () => {
     setIsLoading(true);
     try {
-      const response = await api.post("/auth/group", {
+      await createGroup({
         groupName: formData.groupName,
         description: formData.description,
-        groupPage: "",
-        status: 1,
       });
-      if (response.status >= 200 && response.status < 300) {
-        toast.success("Tạo nhóm thành công");
-        setIsOpenDialogCreateGroup(false);
-        setFormData({ groupName: "", description: "" });
-        refreshGroupList();
-      } else {
-        toast.error("Có lỗi xảy ra khi tạo nhóm");
-      }
+      toast.success("Tạo nhóm thành công");
+      setIsOpenDialogCreateGroup(false);
+      setFormData({ groupName: "", description: "" });
+      refreshGroupList();
     } catch (error) {
       toast.error("Có lỗi xảy ra khi tạo nhóm");
       console.error("Error creating group:", error);
@@ -134,7 +128,7 @@ const GroupListItem = ({
   };
 
   useEffect(() => {
-    if(groupList.length > 0) {
+    if (groupList.length > 0) {
       handleGroupSelect(groupList[0].id);
     }
   }, [groupList, handleSelectGroup]);
@@ -169,8 +163,8 @@ const GroupListItem = ({
             variant="group"
             size="sm"
             className={`w-full h-10 px-4  flex items-center justify-start border-none rounded-[3px] ${
-              selectedGroupId === group.id 
-                ? "bg-[#A2122B] text-white" 
+              selectedGroupId === group.id
+                ? "bg-[#A2122B] text-white"
                 : "hover:bg-[#F9F9F9] hover:text-[#000]"
             }`}
             key={group.id}
@@ -186,6 +180,7 @@ const GroupListItem = ({
         title="Thêm nhóm người dùng"
         message={messageCreateGroup()}
         onConfirm={handleConfirmCreateGroup}
+        isLoading={isLoading}
       />
     </div>
   );

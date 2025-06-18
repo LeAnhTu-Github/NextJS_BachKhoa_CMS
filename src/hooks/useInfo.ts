@@ -2,6 +2,7 @@
 import { User } from '@/types/User'
 import { PageRole } from '@/types/pageRole'
 import { useState, useEffect } from 'react'
+import api from '@/services/api'
 
 const useInfo = () => {
     const [user, setUser] = useState<User | null>(null)
@@ -10,25 +11,13 @@ const useInfo = () => {
     const [error, setError] = useState<string | null>(null)
 
     const getUserInfo = async () => {
-        const token = localStorage.getItem('auth-token')
-        if (!token) {
-            setLoading(false)
-            return
+        try {
+            const res = await api.get(`/user/info`)
+            setUser(res.data.data.user)
+            setPageRoles(res.data.data.pageRoles)
+        } catch (error) {
+            setError(error as string)
         }
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/info`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        })
-        if(!res.ok){
-            setError(res.statusText)
-            setLoading(false)
-            return
-        }
-        const data = await res.json()
-        setUser(data.data.user)
-        setPageRoles(data.data.pageRoles)
         setLoading(false)
     }
 

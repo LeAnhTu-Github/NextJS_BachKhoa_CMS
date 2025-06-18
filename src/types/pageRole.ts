@@ -11,4 +11,9 @@ export type PageRole = {
   roles: string;
 };
 
+export type RoleData = {
+  pageId: number;
+  id: number;
+  roleName: string;
+}
 export type PageRoles = PageRole[];

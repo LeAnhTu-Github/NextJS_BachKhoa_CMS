@@ -16,6 +16,7 @@ interface CustomPaginationProps {
   pageSize: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (size: number) => void;
+  setTotalPages: (total: number) => void;
   availablePageSizes?: number[];
 }
 
@@ -27,6 +28,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   pageSize,
   onPageChange,
   onPageSizeChange,
+  setTotalPages,
   availablePageSizes = PAGE_SIZES,
 }) => {
   const [inputPage, setInputPage] = useState(currentPage);
@@ -47,6 +49,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
       inputPage <= totalPages
     ) {
       onPageChange(inputPage);
+      setTotalPages(inputPage);
     }
   };
 

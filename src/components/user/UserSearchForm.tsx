@@ -42,10 +42,8 @@ const UserSearchForm = ({
       status: undefined,
     },
   });
-  const handleSearch = (values: FormValues) => {
-    console.log(values);
+  const handleSearch = (values: FormValues) => {  
     onSearch?.(values);
-    console.log("Search successfully");
   };
 
   const handleRefresh = () => {

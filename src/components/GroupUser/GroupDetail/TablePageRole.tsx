@@ -7,14 +7,14 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
-import api from "@/services/api";
+import { getPageRoles } from "@/services/groupService"; 
 import { Checkbox } from "@/components/ui/checkbox";
 import { PageRole } from "@/types/pageRole";
-import { RoleData } from "./GroupDetailTag";
+import { RoleData } from "@/types/pageRole";
 
 interface TablePageRoleProps {
   listSelected?: PageRole[];
-  onSetListRoleSelected: (listRoleSelected: RoleData[]) => void;
+  onSetListRole: (listRoleSelected: RoleData[]) => void;
   onSetPageRoleSelected: (pageRoleSelected: PageRole) => void;
   selectedRoles: RoleData[];
   onPageSelection: (page: PageRole, isSelected: boolean) => void;
@@ -22,15 +22,13 @@ interface TablePageRoleProps {
 
 const TablePageRole = ({ 
   listSelected = [], 
-  onSetListRoleSelected, 
+  onSetListRole, 
   onSetPageRoleSelected,
   selectedRoles,
   onPageSelection 
 }: TablePageRoleProps) => {
   const [selected, setSelected] = useState<PageRole[]>([]);
   const [listPageRoles, setListPageRoles] = useState<PageRole[]>([]); 
-  
-
   const isAllSelected = selected.length === listPageRoles.length && listPageRoles.length > 0;
 
   const handleSelectAll = () => {
@@ -45,9 +43,9 @@ const TablePageRole = ({
 
   const fetchPageRoles = async () => {
     try {
-      const response = await api.get("/auth/page");
-      setListPageRoles(response.data.data.pages);
-      onSetListRoleSelected(response.data.data.roles)
+      const { pages, roles } = await getPageRoles();
+      setListPageRoles(pages);
+      onSetListRole(roles);
     } catch (error) {
       console.error("Error fetching page roles:", error);
     }
@@ -62,24 +60,33 @@ const TablePageRole = ({
     setSelected(newSelected);
     onPageSelection(role, !isCurrentlySelected);
   };
-
   useEffect(() => {
     fetchPageRoles();
   }, []);
 
   useEffect(() => {
-    if (listPageRoles.length > 0 && listSelected.length > 0) {
-      const selectedPages = new Set(listSelected.map(page => page.id));
-      const newSelected = listPageRoles.filter(page => selectedPages.has(page.id));
+    if (listPageRoles.length > 0) {
+      if (listSelected.length === 0) {
+        setSelected([]);
+        return;
+      }
+      const selectedPageIds = new Set([
+        ...listSelected.map(page => page.id),
+        ...selectedRoles.map(role => role.pageId)
+      ]);
+      const newSelected = listPageRoles.filter(page => selectedPageIds.has(page.id));
       setSelected(newSelected);
-      newSelected.forEach(page => onPageSelection(page, true));
     }
-  }, [listPageRoles, listSelected]);
+  }, [listSelected, listPageRoles, selectedRoles]);
 
   useEffect(() => {
-    const selectedPages = new Set(selectedRoles.map(role => role.pageId));
-    const newSelected = listPageRoles.filter(page => selectedPages.has(page.id));
-    setSelected(newSelected);
+    if (listPageRoles.length > 0) {
+      const selectedPageIds = new Set(
+        selectedRoles.map(role => role.pageId)
+      );
+      const newSelected = listPageRoles.filter(page => selectedPageIds.has(page.id));
+      setSelected(newSelected);
+    }
   }, [selectedRoles, listPageRoles]);
 
   return (

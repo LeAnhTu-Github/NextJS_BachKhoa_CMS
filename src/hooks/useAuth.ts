@@ -3,6 +3,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import axios from 'axios'
 
 interface LoginResponse {
   message: string,
@@ -18,25 +19,18 @@ export function useAuth() {
     setError(null)
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+        username,
+        password,
       })
 
-      const data = await res.json()
-
-      if (!res.ok) {
-        console.log(data)
-        setError(data.error.message || 'Login failed')
-        return { success: false, message: data.error.message}
-      }
+      const data = res.data
 
       if (data.data.token) {
         localStorage.setItem('auth-token', data.data.token)
       }
 
-      return { success: true, message: data.error.message }
+      return { success: true, message: data.message }
     } catch (err) {
       console.error('Login error:', err)
       setError('An unexpected error occurred')

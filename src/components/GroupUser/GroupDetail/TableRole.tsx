@@ -8,36 +8,39 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { RoleData } from "./GroupDetailTag";
-import { PageRole } from "@/types/pageRole";
+import { PageRole, RoleData } from "@/types/pageRole";
 
 interface TableRoleProps {
   listSelected: PageRole[];
-  listRoleSelected: RoleData[];
+  listRole: RoleData[];
   pageRoleSelected: PageRole | undefined;
   selectedRoles: RoleData[];
   onRoleSelection: (roles: RoleData[]) => void;
 }
 
 const TableRole = ({
-  listRoleSelected,
+  listRole,
   pageRoleSelected,
   selectedRoles,
   onRoleSelection,
   listSelected,
 }: TableRoleProps) => {
   const [localSelectedRoles, setLocalSelectedRoles] = useState<RoleData[]>([]);
+
+  useEffect(() => {
+    setLocalSelectedRoles([]);
+  }, [listSelected]);
+
   useEffect(() => {
     setLocalSelectedRoles(selectedRoles);
   }, [selectedRoles]);
 
   useEffect(() => {
-    if (listRoleSelected.length > 0 && listSelected.length > 0) {
+    if (listRole.length > 0 && listSelected.length > 0) {
       const selectedPageIds = new Set(listSelected.map((page) => page.roleId));
-      const rolesToSelect = listRoleSelected.filter((role) =>
+      const rolesToSelect = listRole.filter((role) =>
         selectedPageIds.has(role.id)
       );
-
       if (rolesToSelect.length > 0) {
         const newSelected = [...localSelectedRoles];
         rolesToSelect.forEach((role) => {
@@ -49,11 +52,12 @@ const TableRole = ({
         onRoleSelection(newSelected);
       }
     }
-  }, [listRoleSelected, listSelected]);
+  }, [listRole, listSelected]);
 
-  const result = listRoleSelected.filter(
+  const result = listRole.filter(
     (role) => role.pageId === pageRoleSelected?.id
   );
+
   const isAllSelected =
     result.length > 0 &&
     result.every((role) =>
@@ -108,8 +112,8 @@ const TableRole = ({
               checked={isAllSelected}
               onCheckedChange={handleSelectAll}
             />
-            <div className="pl-4">
-              <span className="text-sm font-medium">{`CHỨC NĂNG ${
+            <div className="pl-4 w-full">
+              <span className="text-sm font-medium truncate w-full">{`CHỨC NĂNG ${
                 pageRoleSelected?.pageName
                   ? `TRANG ${pageRoleSelected?.pageName.toUpperCase()}`
                   : ""

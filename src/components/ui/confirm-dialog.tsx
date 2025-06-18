@@ -22,6 +22,8 @@ interface ConfirmDialogProps {
   cancelText?: string;
   hiddenConfirm?: boolean;
   confirmButtonStyle?: string;
+  isLoading?: boolean;
+  large?: boolean;
 }
 
 const ConfirmDialog = ({
@@ -30,11 +32,13 @@ const ConfirmDialog = ({
   title,
   message,
   onConfirm,
-  onCancel,
+  onCancel,  
+  large,     
   confirmText = "Xác nhận",
   cancelText = "Đóng",
   hiddenConfirm,
   confirmButtonStyle = "bg-[#A2212B] text-white hover:bg-[#7C1C25] max-w-[100px]",
+  isLoading,
 }: ConfirmDialogProps) => {
   const handleCancel = () => {
     onOpenChange(false);
@@ -46,13 +50,17 @@ const ConfirmDialog = ({
     onOpenChange(false);
   };
 
+  const widthClass = large
+    ? "md:w-[90%] md:max-w-[1200px]"
+    : "md:w-[700px] md:max-w-[700px]";
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <AnimatePresence>
         {isOpen && (
           <DialogContent
             showCloseButton={false}
-            className="max-w-none p-0 rounded-lg border-none w-9/10 md:w-[700px] md:max-w-[700px] md:mx-auto"
+            className={`max-w-none p-0 rounded-lg border-none w-9/10 ${widthClass} md:mx-auto overflow-auto`}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -77,7 +85,7 @@ const ConfirmDialog = ({
                   </DialogClose>
                 </DialogHeader>
                 <div className="px-4 py-4">
-                  <div className="text-[16px] text-gray-600">{message}</div>
+                  <div className="text-[16px] text-gray-600 ">{message}</div>
                 </div>
                 <hr className="m-0 p-0" />
                 <DialogFooter className="bg-white border-none rounded-b-lg px-2 py-2 flex flex-row justify-end md:justify-end gap-2">
@@ -86,8 +94,12 @@ const ConfirmDialog = ({
                     <i className="mdi mdi-close text-xs"></i>
                   </Button>
                   {!hiddenConfirm && (
-                    <Button onClick={handleConfirm} className={confirmButtonStyle}>
-                      {confirmText}
+                    <Button 
+                      onClick={handleConfirm} 
+                      className={confirmButtonStyle}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? "Đang xử lý..." : confirmText}
                     </Button>
                   )}
                 </DialogFooter>

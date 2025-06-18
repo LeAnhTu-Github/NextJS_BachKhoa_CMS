@@ -112,6 +112,7 @@ const UserManagement = () => {
       <ListUser users={users} isLoading={loading} onRefresh={handleRefresh} onDelete={handleDelete} onEdit={handleEdit} />
       
       <CustomPagination
+        setTotalPages={setTotalPages}
         currentPage={pageIndex}
         totalPages={totalPages}
         pageSize={pageSize}
