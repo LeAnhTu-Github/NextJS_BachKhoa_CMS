@@ -6,6 +6,7 @@ import { Group } from "@/types/User";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
 import { toast } from "sonner";
 import { createGroup } from "@/services/groupService";
+import { Label } from "@/components/ui/label";
 
 interface GroupListItemProps {
   groupList: Group[];
@@ -86,20 +87,25 @@ const GroupListItem = ({
     handleSelectGroup(groupId);
   };
 
-  const filteredGroups = groupList.filter((group) =>
-    group.groupName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredGroups = groupList.filter((group) => {
+    if(group.groupName){
+      return group.groupName.toLowerCase().includes(searchTerm.toLowerCase());
+    }
+    return false;
+  });
 
   const messageCreateGroup = () => {
     return (
       <div className="w-full flex flex-col gap-6">
         <div className="w-full flex flex-col gap-2">
+          <Label htmlFor="groupName">Tên nhóm <span className="text-redberry">(*)</span></Label>
           <Input
             id="groupName"
             type="text"
-            placeholder="Nhập tên nhóm (*)"
+            placeholder="Nhập tên nhóm"
             required
             tabIndex={0}
+            maxWidthClass="lg:max-w-[100%]"
             className="w-full h-14"
             value={formData.groupName}
             onChange={handleInputChange}
@@ -110,10 +116,12 @@ const GroupListItem = ({
           )}
         </div>
         <div className="w-full flex flex-col gap-2">
+          <Label htmlFor="description">Mô tả <span className="text-redberry">(*)</span></Label>
           <Input
             id="description"
-            placeholder="Nhập mô tả (*)"
+            placeholder="Nhập mô tả"
             tabIndex={0}
+            maxWidthClass="lg:max-w-[100%]"
             className="w-full h-14 mb-6"
             value={formData.description}
             onChange={handleInputChange}
@@ -141,7 +149,7 @@ const GroupListItem = ({
           onClick={handleOpenDialogCreateGroup}
           variant="outline"
           size="sm"
-          className="min-w-16 flex flex-row items-center gap-2 shadow-lg bg-[#A2122B] text-white h-9 hover:bg-[#A84B52] hover:text-white"
+          className="min-w-16 flex flex-row items-center gap-2 shadow-lg bg-redberry text-white h-9 hover:bg-redberryHover hover:text-white"
         >
           Thêm mới
           <PlusIcon className="w-4 h-4" />
@@ -153,6 +161,7 @@ const GroupListItem = ({
           placeholder="Tìm kiếm"
           className="w-full h-10 rounded-[4px] placeholder:text-lg"
           value={searchTerm}
+          maxWidthClass="lg:max-w-[100%]"
           onChange={handleSearchChange}
           aria-label="Tìm kiếm nhóm"
         />
@@ -164,7 +173,7 @@ const GroupListItem = ({
             size="sm"
             className={`w-full h-10 px-4  flex items-center justify-start border-none rounded-[3px] ${
               selectedGroupId === group.id
-                ? "bg-[#A2122B] text-white"
+                ? "bg-redberry text-white"
                 : "hover:bg-[#F9F9F9] hover:text-[#000]"
             }`}
             key={group.id}

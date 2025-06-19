@@ -18,6 +18,7 @@ interface TablePageRoleProps {
   onSetPageRoleSelected: (pageRoleSelected: PageRole) => void;
   selectedRoles: RoleData[];
   onPageSelection: (page: PageRole, isSelected: boolean) => void;
+  setSelectedRoles: (roles: RoleData[]) => void;
 }
 
 const TablePageRole = ({ 
@@ -25,19 +26,25 @@ const TablePageRole = ({
   onSetListRole, 
   onSetPageRoleSelected,
   selectedRoles,
-  onPageSelection 
+  onPageSelection ,
+  setSelectedRoles
 }: TablePageRoleProps) => {
   const [selected, setSelected] = useState<PageRole[]>([]);
+  const [listRole, setListRole] = useState<RoleData[]>([]);
   const [listPageRoles, setListPageRoles] = useState<PageRole[]>([]); 
   const isAllSelected = selected.length === listPageRoles.length && listPageRoles.length > 0;
 
   const handleSelectAll = () => {
     if (isAllSelected) {
       setSelected([]);
+      setSelectedRoles([]);
       listPageRoles.forEach(page => onPageSelection(page, false));
     } else {
       setSelected([...listPageRoles]);
-      listPageRoles.forEach(page => onPageSelection(page, true));
+      const allRoles = listRole.filter(role =>
+        listPageRoles.some(page => role.pageId === page.id)
+      );
+      setSelectedRoles(allRoles);
     }
   };
 
@@ -46,6 +53,7 @@ const TablePageRole = ({
       const { pages, roles } = await getPageRoles();
       setListPageRoles(pages);
       onSetListRole(roles);
+      setListRole(roles);
     } catch (error) {
       console.error("Error fetching page roles:", error);
     }
@@ -70,6 +78,8 @@ const TablePageRole = ({
         setSelected([]);
         return;
       }
+      console.log('listSelected - 1', listSelected);
+      console.log('selectedRoles - 1', selectedRoles);
       const selectedPageIds = new Set([
         ...listSelected.map(page => page.id),
         ...selectedRoles.map(role => role.pageId)
@@ -81,6 +91,8 @@ const TablePageRole = ({
 
   useEffect(() => {
     if (listPageRoles.length > 0) {
+      console.log('listSelected - 2', listSelected);
+      console.log('selectedRoles - 2', selectedRoles);
       const selectedPageIds = new Set(
         selectedRoles.map(role => role.pageId)
       );
@@ -95,7 +107,7 @@ const TablePageRole = ({
         <TableRow className="bg-[#F1EFEF]">
           <TableHead className="w-12 flex flex-row items-center text-sm font-bold">
             <Checkbox
-              className="bg-white data-[state=checked]:bg-[#A2122B] data-[state=checked]:border-none"
+              className="bg-white data-[state=checked]:bg-redberry data-[state=checked]:border-none"
               aria-label={isAllSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
               checked={isAllSelected}
               onCheckedChange={handleSelectAll}
@@ -130,7 +142,7 @@ const TablePageRole = ({
             >
               <TableCell className="w-12">
                 <Checkbox
-                  className="data-[state=checked]:bg-[#A2122B] data-[state=checked]:border-none"
+                  className="data-[state=checked]:bg-redberry data-[state=checked]:border-none"
                   aria-label={
                     checked
                       ? `Bỏ chọn ${role.pageName}`

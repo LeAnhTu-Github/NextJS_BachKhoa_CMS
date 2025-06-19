@@ -100,7 +100,7 @@ const TableAccount = ({ groupDetail }: TableAccountProps) => {
       );
     }
     return (
-      <div className="block sm:hidden space-y-4">
+      <div className="block sm:hidden space-y-4 max-h-[calc(100vh-100px)] overflow-y-auto">
         {users.map((user: User, idx: number) => (
           <div
             key={user.id}
@@ -134,7 +134,7 @@ const TableAccount = ({ groupDetail }: TableAccountProps) => {
             </div>
             <div className="flex justify-between items-center text-sm py-1">
               <span className="font-medium text-gray-600">Trạng thái</span>
-              <div className={`w-auto h-[24px] rounded-lg text-white text-xs font-thin flex items-center justify-center px-3 ${user.status === "ACTIVE" ? "bg-[#A2122B]" : "bg-[#9E9E9E]"}`}>
+              <div className={`w-auto h-[24px] rounded-lg text-white text-xs font-thin flex items-center justify-center px-3 ${user.status === "ACTIVE" ? "bg-redberry" : "bg-[#9E9E9E]"}`}>
                 {user.status === "ACTIVE" ? "Kích hoạt" : "Chưa kích hoạt"}
               </div>
             </div>
@@ -152,7 +152,7 @@ const TableAccount = ({ groupDetail }: TableAccountProps) => {
       );
     }
     return (
-      <div className="w-full hidden sm:block rounded-lg bg-white mt-3 max-h-[550px] overflow-y-auto">
+      <div className="w-full hidden sm:block rounded-lg bg-white mt-3 max-h-[calc(100vh-100px)] overflow-y-auto">
         <Table>
           <TableHeader className="bg-gray-100">
             <TableRow>
@@ -187,7 +187,7 @@ const TableAccount = ({ groupDetail }: TableAccountProps) => {
                 <TableCell className="text-sm text-gray-700 pl-2">{user.phone}</TableCell>
                 <TableCell className="text-sm text-gray-700 pl-2">{user.position}</TableCell>
                 <TableCell>
-                  <div className={`w-auto h-[24px] rounded-lg text-white text-xs font-thin flex items-center justify-center ${user.status === "ACTIVE" ? "bg-[#A2122B]" : "bg-[#9E9E9E]"}`}>
+                  <div className={`w-auto h-[24px] rounded-lg text-white text-xs font-thin flex items-center justify-center ${user.status === "ACTIVE" ? "bg-redberry" : "bg-[#9E9E9E]"}`}>
                     {user.status === "ACTIVE" ? "Kích hoạt" : "Chưa kích hoạt"}
                   </div>
                 </TableCell>

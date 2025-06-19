@@ -146,28 +146,28 @@ const ListUser = ({
         <div className="flex flex-col gap-2 lg:flex-row">
           <div className="w-full lg:w-1/2 flex gap-2">
             <span className="font-medium text-sm text-gray-600">Họ tên:</span>
-            <span className="text-sm text-[#A2122B]">{user.fullName}</span>
+            <span className="text-sm text-redberry">{user.fullName}</span>
           </div>
           <div className="w-full lg:w-1/2 flex gap-2">
             <span className="font-medium text-sm text-gray-600">
               Số điện thoại:
             </span>
-            <span className="text-sm text-[#A2122B]">{user.phone}</span>
+            <span className="text-sm text-redberry">{user.phone}</span>
           </div>
         </div>
         <div className="flex flex-col gap-2 lg:flex-row">
           <div className="flex gap-2 w-full lg:w-1/2">
             <span className="font-medium text-sm text-gray-600">Email:</span>
-            <span className="text-sm text-[#A2122B]">{user.email}</span>
+            <span className="text-sm text-redberry">{user.email}</span>
           </div>
           <div className="flex gap-2 w-full lg:w-1/2">
             <span className="font-medium text-sm text-gray-600">Chức vụ:</span>
-            <span className="text-sm text-[#A2122B]">{user.position}</span>
+            <span className="text-sm text-redberry">{user.position}</span>
           </div>
         </div>
         <div className="flex gap-2 w-full items-center">
           <span className="font-medium text-sm text-gray-600">Trạng thái:</span>
-          <div className="flex gap-2 w-auto h-auto p-2 rounded-sm bg-[#A2122B]">
+          <div className="flex gap-2 w-auto h-auto p-2 rounded-sm bg-redberry">
             <span className="text-xs text-white">
               {user.status === "ACTIVE" ? "Kích hoạt" : "Chưa kích hoạt"}
             </span>
@@ -178,7 +178,7 @@ const ListUser = ({
             Nhóm người dùng:
           </span>
           <div className="flex gap-2 p-2">
-            <span className="text-sm text-[#A2122B]">
+            <span className="text-sm text-redberry">
               {user.groups.map((group) => group.groupName).join(", ")}
             </span>
           </div>
@@ -248,8 +248,9 @@ const ListUser = ({
       onValueChange={(value) => handleStatusChange(user.id, value)}
     >
       <SelectTrigger
-        className={`w-[140px] h-[30px] rounded-lg text-white text-xs font-thin [&_svg]:text-white [&_svg]:size-5 ${
-          user.status === "ACTIVE" ? "bg-[#A2122B]" : "bg-[#9E9E9E]"
+        size="xs"
+        className={`w-auto px-3 rounded-lg text-white text-xs font-thin [&_svg]:text-white [&_svg]:size-5 ${
+          user.status === "ACTIVE" ? "bg-redberry" : "bg-[#9E9E9E]"
         }`}
       >
         <SelectValue placeholder="Chọn trạng thái" />
@@ -380,7 +381,7 @@ const ListUser = ({
           ))
         )}
       </div>
-      <div className="w-full hidden sm:block rounded-lg border border-gray-200 bg-white mt-3 max-h-[550px] overflow-y-auto">
+      <div className="w-full hidden sm:block rounded-lg border border-gray-200 bg-white mt-3 overflow-y-auto">
         <Table>
           <TableHeader className="bg-gray-100">
             <TableRow>
@@ -536,9 +537,9 @@ const ListUser = ({
         message={
           <p className="text-[16px] text-gray-600">
             Bạn có chắc chắn muốn reset mật khẩu về
-            <span className="font-semibold text-[#A2122B]"> 123@123a</span> của
+            <span className="font-semibold text-redberry"> 123@123a</span> của
             người dùng{" "}
-            <span className="font-semibold text-[#A2122B]">
+            <span className="font-semibold text-redberry">
               {selectedUserAction?.user.fullName}
             </span>{" "}
             không?

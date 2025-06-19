@@ -34,6 +34,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader } from "lucide-react";
 
 const formSchema = z.object({
   avatar: z.string().nullable(),
@@ -82,6 +83,7 @@ const ModalEditUser: React.FC<ModalEditUserProps> = ({
       groupIds: user.groups.map(group => group.id),
     },
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (user.avatar) {
@@ -188,14 +190,19 @@ const ModalEditUser: React.FC<ModalEditUserProps> = ({
   };
 
   const onSubmit = async (data: FormValues) => {
-    await updateUser(data);
+    setIsLoading(true);
+    try {
+      await updateUser(data);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="max-w-none p-0 rounded-lg border-none w-9/10 overflow-auto lg:w-[1000px] lg:max-w-[1000px] "
+        className="w-[90vw] max-w-[90vw] p-0 rounded-lg border-none sm:w-[80vw] sm:max-w-[80vw] md:w-[70vw] md:max-w-[70vw] lg:w-[1000px] lg:max-w-[1000px] overflow-auto"
       >
         <div className="flex flex-col w-full h-full">
           <DialogHeader className="bg-[#A52834] border-none rounded-t-lg px-8 py-4">
@@ -214,10 +221,10 @@ const ModalEditUser: React.FC<ModalEditUserProps> = ({
             </DialogClose>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto">
-            <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} bg-white px-8 py-4 gap-4 flex-1`}>
-              <div className={`${isMobile ? 'w-full' : 'w-1/3'} flex flex-col items-center justify-center gap-4`}>
+            <div className={`flex flex-col lg:flex-row bg-white px-8 py-4 gap-4 lg:gap-8 flex-1`}>
+              <div className={`w-full lg:w-1/3 flex flex-col items-center justify-center gap-4`}>
                 {!image ? (
-                  <div className={`w-full flex flex-col items-center justify-center bg-red-50 rounded-lg cursor-pointer transition hover:bg-red-100 ${isMobile ? 'h-36' : 'h-72'}`}>
+                  <div className={`w-full flex flex-col items-center justify-center bg-red-50 rounded-lg cursor-pointer transition hover:bg-red-100 ${isMobile ? 'h-36' : 'h-72'}`}> 
                     <Label
                       htmlFor="avatar"
                       className="w-full h-full flex flex-col items-center justify-center cursor-pointer"
@@ -245,12 +252,12 @@ const ModalEditUser: React.FC<ModalEditUserProps> = ({
                     </Label>
                   </div>
                 ) : (
-                  <div className={`relative w-full ${isMobile ? 'h-36' : 'h-72'}`}>
+                  <div className={`relative w-full ${isMobile ? 'h-36' : 'h-72'}`}> 
                     <NextImage
                       src={image.data.url || ""}
                       alt="User avatar"
                       width={288}
-                      height={288}    
+                      height={288}
                       className={`rounded-lg w-full object-cover ${isMobile ? 'h-36' : 'h-72'}`}
                       priority
                     />
@@ -275,49 +282,90 @@ const ModalEditUser: React.FC<ModalEditUserProps> = ({
                   </div>
                 )}
               </div>
-              <form id="edit-user-form" className={`${isMobile ? 'w-full' : 'w-2/3'} flex flex-col gap-8`} onSubmit={handleSubmit(onSubmit)}>
-                <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-4`}>
-                  <Input
-                    className={`${isMobile ? 'w-full' : 'w-1/2'} ${errors.fullName ? "border-red-500" : ""}`}
-                    placeholder="Họ & tên (*)"
-                    aria-label="Họ & tên"
-                    tabIndex={0}
-                    {...register("fullName", { required: "Vui lòng nhập Họ & tên" })}
-                  />
-                  {errors.fullName && <span className="text-red-500">{errors.fullName.message}</span>}
-                  <Input
-                    className={`${isMobile ? 'w-full' : 'w-1/2'} ${errors.email ? "border-red-500" : ""}`}
-                    placeholder="Email (*)"
-                    aria-label="Email"
-                    tabIndex={0}
-                    {...register("email", { required: "Vui lòng nhập Email" })}
-                  />
-                  {errors.email && <span className="text-red-500">{errors.email.message}</span>}
-                </div>
-                <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-4`}>
-                  <Input
-                    className={`${isMobile ? 'w-full' : 'w-1/2'} ${errors.phone ? "border-red-500" : ""}`}
-                    placeholder="Số điện thoại (*)"
-                    aria-label="Số điện thoại"
-                    tabIndex={0}
-                    {...register("phone", { required: "Vui lòng nhập Số điện thoại" })}
-                  />
-                  {errors.phone && <span className="text-red-500">{errors.phone.message}</span>}
-                  <Input
-                    className={`${isMobile ? 'w-full' : 'w-1/2'} ${errors.position ? "border-red-500" : ""}`}
-                    placeholder="Chức vụ (*)"
-                    aria-label="Chức vụ"
-                    tabIndex={0}
-                    {...register("position", { required: "Vui lòng chọn Chức vụ" })}
-                  />
-                  {errors.position && <span className="text-red-500">{errors.position.message}</span>}
+              <form id="edit-user-form" className={`w-full lg:w-2/3 flex flex-col gap-4`} onSubmit={handleSubmit(onSubmit)}>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="fullName">Họ & tên <span className="text-redberry">(*)</span></Label>
+                    <Input
+                      className={`h-10 w-full ${errors.fullName ? "border-red-500" : ""}`}
+                      placeholder="Họ & tên"
+                      aria-label="Họ & tên"
+                      tabIndex={0}
+                      {...register("fullName", { required: "Vui lòng nhập Họ & tên" })}
+                      value={watch("fullName")}
+                    />
+                    <div className="flex h-3">
+                      {errors.fullName && <span className="text-red-500 text-sm">{errors.fullName.message}</span>}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="email">Email <span className="text-redberry">(*)</span></Label>
+                    <Input
+                      className={`h-10 w-full ${errors.email ? "border-red-500" : ""}`}
+                      placeholder="Email"
+                      aria-label="Email"
+                      tabIndex={0}
+                      {...register("email", { required: "Vui lòng nhập Email" })}
+                      value={watch("email")}
+                    />
+                    <div className="flex h-3">
+                      {errors.email && <span className="text-red-500 text-sm">{errors.email.message}</span>}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="phone">Số điện thoại <span className="text-redberry">(*)</span></Label>
+                    <Input
+                      className={`h-10 w-full ${errors.phone ? "border-red-500" : ""}`}
+                      placeholder="Số điện thoại"
+                      aria-label="Số điện thoại"
+                      tabIndex={0}
+                      {...register("phone", { required: "Vui lòng nhập Số điện thoại" })}
+                      value={watch("phone")}
+                    />
+                    <div className="flex h-3">
+                      {errors.phone && <span className="text-red-500 text-sm">{errors.phone.message}</span>}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="position">Chức vụ <span className="text-redberry">(*)</span></Label>
+                    <Input
+                      className={`h-10 w-full ${errors.position ? "border-red-500" : ""}`}
+                      placeholder="Chức vụ"
+                      aria-label="Chức vụ"
+                      tabIndex={0}
+                      {...register("position", { required: "Vui lòng chọn Chức vụ" })}
+                      value={watch("position")}
+                    />
+                    <div className="flex h-3">
+                      {errors.position && <span className="text-red-500 text-sm">{errors.position.message}</span>}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1 col-span-1 lg:col-span-2">
+                    <Label htmlFor="status">Trạng thái <span className="text-redberry">(*)</span></Label>
+                    <Select
+                      value={watch("status")}
+                      onValueChange={(value) => setValue("status", value, { shouldValidate: true })}
+                    >
+                      <SelectTrigger id="status" className={`w-full h-10 ${errors.status ? "border-red-500" : ""}`} aria-label="Trạng thái" tabIndex={0}> 
+                        <SelectValue placeholder="Trạng thái" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem className="text-[#A2212B] caret-[#A2212B]" value="ACTIVE">Kích hoạt</SelectItem>
+                        <SelectItem className="text-[#A2212B] caret-[#A2212B]" value="INACTIVE">Chưa kích hoạt</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="flex h-3">
+                      {errors.status && <span className="text-red-500 text-sm">{errors.status.message}</span>}
+                    </div>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-2">
+                  <Label htmlFor="groupIds">Nhóm người dùng <span className="text-redberry">(*)</span></Label>
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger asChild className="border border-gray-300 rounded-lg">
                       <Button
                         variant="outline"
-                        className={`w-full justify-between ${errors.groupIds ? "border-red-500" : ""}`}
+                        className={`w-full justify-between h-10 ${errors.groupIds ? "border-red-500" : ""}`}
                       >
                         {watch("groupIds")?.length > 0
                           ? `${watch("groupIds").map((group) => groups.find((g) => g.id === group)?.groupName).join(", ")}`
@@ -349,22 +397,9 @@ const ModalEditUser: React.FC<ModalEditUserProps> = ({
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  {errors.groupIds && <span className="text-red-500">Vui lòng chọn Nhóm người dùng</span>}
-                </div>
-                <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-4`}>
-                  <Select
-                    value={watch("status")}
-                    onValueChange={(value) => setValue("status", value, { shouldValidate: true })}
-                  >
-                    <SelectTrigger className={`${isMobile ? 'w-full' : 'w-1/2'} ${errors.status ? "border-red-500" : ""}`} aria-label="Trạng thái" tabIndex={0}> 
-                      <SelectValue placeholder="Trạng thái (*)" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem className="text-[#A2212B] caret-[#A2212B]" value="ACTIVE">Kích hoạt</SelectItem>
-                      <SelectItem className="text-[#A2212B] caret-[#A2212B]" value="INACTIVE">Chưa kích hoạt</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.status && <span className="text-red-500">{errors.status.message}</span>}
+                  <div className="flex h-3">
+                    {errors.groupIds && <span className="text-red-500 text-sm">Vui lòng chọn Nhóm người dùng</span>}
+                  </div>
                 </div>
               </form>
             </div>
@@ -385,9 +420,19 @@ const ModalEditUser: React.FC<ModalEditUserProps> = ({
               className="max-w-[100px] h-9 px-2 py-2 rounded bg-[#A52834] text-white font-semibold hover:bg-[#7C1C25] transition flex items-center gap-2"
               aria-label="Lưu"
               tabIndex={0}
+              disabled={isLoading}
             >
-              Lưu
-              <i className="mdi mdi-content-save-outline text-xs"></i>
+              {isLoading ? (
+                <>
+                  Lưu
+                  <Loader className="w-4 h-4 animate-spin ml-2" />
+                </>
+              ) : (
+                <>
+                  Lưu
+                  <i className="mdi mdi-content-save-outline text-xs"></i>
+                </>
+              )}
             </button>
           </DialogFooter>
         </div>

@@ -61,20 +61,22 @@ const UserSearchForm = ({
       <div className="w-full flex justify-start xl:justify-end flex-wrap gap-4">
         <form
           onSubmit={form.handleSubmit(handleSearch)}
-          className="flex flex-col md:flex-row md:flex-wrap gap-4 w-full"
+          className="flex flex-col lg:flex-row gap-4 w-full"
         >
-            <div className="flex flex-col md:flex-row gap-4 flex-1">
+            <div className="flex flex-col md:flex-row gap-4 flex-1 justify-end">
               <Input
                 {...form.register("fullName")}
                 placeholder="Họ tên"
-                className="h-10 w-full md:w-[calc(33.333%-0.5rem)] md:min-w-60 md:max-w-64"
+                className="h-10 w-full lg:max-w-[300px]"
                 aria-label="Tìm theo họ tên"
+                value={form.watch("fullName")}
               />
               <Input
                 {...form.register("email")}
                 placeholder="Email"
-                className="h-10 w-full md:w-[calc(33.333%-0.5rem)] md:min-w-60 md:max-w-64"
+                className="h-10 w-full lg:max-w-[300px]"
                 aria-label="Tìm theo email"
+                value={form.watch("email")}
               />
               <Select
                 onValueChange={(value) =>
@@ -82,7 +84,7 @@ const UserSearchForm = ({
                 }
                 value={form.watch("status")}
               >
-                <SelectTrigger className="h-10 w-full md:w-[calc(33.333%-0.5rem)] md:min-w-60 md:max-w-64">
+                <SelectTrigger className="h-10 w-full lg:max-w-[300px]">
                   <SelectValue placeholder="Trạng thái" />
                 </SelectTrigger>
                 <SelectContent>

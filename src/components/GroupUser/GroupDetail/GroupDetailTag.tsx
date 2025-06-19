@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TableAccount from "../Account/TableAccount";
 import { Button } from "@/components/ui/button";
-import { SaveIcon, TrashIcon } from "lucide-react";
+import { Loader, TrashIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
 import { GroupResponse } from "@/types/GroupReponse";
@@ -40,6 +40,7 @@ const GroupDetailTag = ({
   const [isOpenDialogDelete, setIsOpenDialogDelete] = useState(false);
   const [isOpenDialogAccount, setIsOpenDialogAccount] = useState(false);
   const [listAccountSelected, setListAccountSelected] = useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (groupDetail) {
@@ -104,6 +105,7 @@ const GroupDetailTag = ({
     setIsOpenDialogDelete(false);
   };
   const handleUpdate = async () => {
+    setIsLoading(true);
     try {
       if (!groupDetail?.group.id) {
         toast.error("Không tìm thấy ID nhóm");
@@ -122,12 +124,17 @@ const GroupDetailTag = ({
 
       await updateGroup(groupDetail.group.id, payload);
       toast.success("Cập nhật nhóm thành công");
+      // setListRole([]);
       refreshGroupList();
     } catch (error) {
       console.error("Error updating group:", error);
       toast.error("Có lỗi xảy ra khi cập nhật nhóm");
+    } finally {
+      setIsLoading(false);
     }
   };
+
+
   const handleRoleSelection = (roles: RoleData[]) => {
     setSelectedRoles(roles);
     listSelected.forEach((page) => {
@@ -218,11 +225,21 @@ const GroupDetailTag = ({
             <Button
               variant="outline"
               size="sm"
-              className="h-9 w-22 text-white bg-[#A2122B] hover:bg-[#A2122B]/90 hover:text-white rounded-[3px]"
+              className="h-9 w-22 text-white bg-redberry hover:bg-redberry/90 hover:text-white rounded-[3px]"
               onClick={handleUpdate}
+              disabled={isLoading}
             >
-              Lưu
-              <SaveIcon className="w-4 h-4" />
+              {isLoading ? (
+                <>
+                  Lưu
+                  <Loader className="w-4 h-4 animate-spin ml-2" />
+                </>
+              ) : (
+                <>
+                  Lưu
+                  <i className="mdi mdi-content-save-outline text-xs"></i>
+                </>
+              )}
             </Button>
           </div>
           <div className="flex flex-col gap-10 p-3">
@@ -234,6 +251,7 @@ const GroupDetailTag = ({
                 required
                 tabIndex={0}
                 className="w-full h-10 rounded-sm"
+                maxWidthClass="lg:max-w-[100%]"
                 value={formData.groupName}
                 onChange={handleInputChange}
                 aria-invalid={!!errors.groupName}
@@ -248,6 +266,7 @@ const GroupDetailTag = ({
                 placeholder="Nhập mô tả (*)"
                 tabIndex={0}
                 className="w-full h-10 rounded-sm"
+                maxWidthClass="lg:max-w-[100%]"
                 value={formData.description}
                 onChange={handleInputChange}
                 aria-invalid={!!errors.description}
@@ -265,6 +284,7 @@ const GroupDetailTag = ({
                 onSetPageRoleSelected={setPageRoleSelected}
                 selectedRoles={selectedRoles}
                 onPageSelection={handlePageSelection}
+                setSelectedRoles={setSelectedRoles}
               />
             </div>
             <div className="w-full md:w-1/2 h-full">
@@ -283,7 +303,7 @@ const GroupDetailTag = ({
             <div className="w-full flex gap-2 h-full">
               <div className="w-[50%] h-full flex items-center justify-start gap-1 truncate">
                 Danh sách người dùng
-                <span className="text-lg text-[#A2122B]">{`(${groupDetail.users.length})`}</span>
+                <span className="text-lg text-redberry">{`(${groupDetail.users.length})`}</span>
                 <div className="border-r border-gray-200 h-[80%] flex items-center pl-4"></div>
               </div>
               <div className="w-[50%] h-full flex items-center justify-end gap-1">
@@ -291,7 +311,7 @@ const GroupDetailTag = ({
                   onClick={handleOpenDialogAccount}
                   variant="outline"
                   size="sm"
-                  className="min-w-16 text-sm px-4 flex flex-row items-center gap-2 shadow-lg bg-[#A2122B] text-white h-9 hover:bg-[#A84B52] hover:text-white"
+                  className="min-w-16 text-sm px-4 flex flex-row items-center gap-2 shadow-lg bg-redberry text-white h-9 hover:bg-[#A84B52] hover:text-white"
                 >
                   Cập Nhật Danh Sách Tài Khoản
                 </Button>

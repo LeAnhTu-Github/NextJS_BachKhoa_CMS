@@ -71,7 +71,7 @@ const MessageAccount = ({ groupDetail, listUserSelected, setListUserSelected }: 
         <div className="w-full flex gap-2 h-full">
           <div className="w-[30%] h-full flex items-center justify-start gap-1 truncate">
             Danh sách người dùng
-            <span className="text-lg text-[#A2122B]">{`(${groupDetail?.users.length})`}</span>
+            <span className="text-lg text-redberry">{`(${groupDetail?.users.length})`}</span>
             <div className="border-r border-gray-200 h-[80%] flex items-center pl-4"></div>
           </div>
           <div className="w-[70%] h-full flex items-center justify-end gap-1">
@@ -80,6 +80,7 @@ const MessageAccount = ({ groupDetail, listUserSelected, setListUserSelected }: 
               placeholder="Tìm kiếm"
               className="w-full h-10 rounded-[4px] placeholder:text-lg"
               value={fullName}
+              maxWidthClass="lg:max-w-[100%]"
               onChange={handleSearchChange}
               aria-label="Tìm kiếm tên người dùng"
             />
@@ -91,7 +92,7 @@ const MessageAccount = ({ groupDetail, listUserSelected, setListUserSelected }: 
           <TableRow>
             <TableHead>
               <Checkbox 
-                 className="bg-white data-[state=checked]:bg-[#A2122B] data-[state=checked]:border-none"
+                 className="bg-white data-[state=checked]:bg-redberry data-[state=checked]:border-none"
                  checked={isAllSelected}
                  onCheckedChange={handleSelectAll}
               />
@@ -115,7 +116,7 @@ const MessageAccount = ({ groupDetail, listUserSelected, setListUserSelected }: 
                     <TableRow key={user.id}>
                     <TableCell>
                         <Checkbox checked={listUserSelected.some(id => id === user.id)}
-                         className="bg-white data-[state=checked]:bg-[#A2122B] data-[state=checked]:border-none"
+                         className="bg-white data-[state=checked]:bg-redberry data-[state=checked]:border-none"
                          onCheckedChange={() => handleSelectUser(user.id)}
                         />
                     </TableCell>
@@ -125,7 +126,7 @@ const MessageAccount = ({ groupDetail, listUserSelected, setListUserSelected }: 
                     <TableCell>{user.phone}</TableCell>
                     <TableCell>{user.position}</TableCell>
                     <TableCell>
-                        <span className="bg-[#A2122B] text-white rounded-full px-4 py-1">
+                        <span className="bg-redberry text-white rounded-full px-4 py-1">
                         Kích hoạt
                         </span>
                     </TableCell>

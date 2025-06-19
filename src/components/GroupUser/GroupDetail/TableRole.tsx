@@ -107,7 +107,7 @@ const TableRole = ({
         <TableRow className="bg-[#F1EFEF]">
           <TableHead className="w-12 flex flex-row items-center text-sm font-bold">
             <Checkbox
-              className="bg-white data-[state=checked]:bg-[#A2122B] data-[state=checked]:border-none"
+              className="bg-white data-[state=checked]:bg-redberry data-[state=checked]:border-none"
               aria-label={`Chọn tất cả`}
               checked={isAllSelected}
               onCheckedChange={handleSelectAll}
@@ -147,7 +147,7 @@ const TableRole = ({
             >
               <TableCell className="w-12">
                 <Checkbox
-                  className="data-[state=checked]:bg-[#A2122B] data-[state=checked]:border-none"
+                  className="data-[state=checked]:bg-redberry data-[state=checked]:border-none"
                   aria-label={`Chọn ${role.roleName}`}
                   checked={localSelectedRoles.some(
                     (selected) => selected.id === role.id
