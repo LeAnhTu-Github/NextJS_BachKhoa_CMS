@@ -63,7 +63,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
 
   return (
     <div className="flex items-center justify-center lg:justify-end gap-3 mt-4 flex-wrap">
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-center">
         <div className="flex items-center gap-2">
           {/* <span className="text-sm text-gray-500 mb-[-2px] ml-2">Bản ghi</span> */}
           <Select
@@ -71,7 +71,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             onValueChange={(val) => onPageSizeChange(Number(val))}
           >
             <SelectTrigger
-              className="w-[90px] h-8 border rounded-md focus:ring-2 focus:ring-primary"
+              className="w-[90px] h-9 border rounded-md focus:ring-2 focus:ring-primary"
               aria-label="Chọn số bản ghi mỗi trang"
               tabIndex={0}
             >
@@ -102,7 +102,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         </div>
         <Button
           onClick={handleGo}
-          className="h-8 w-16 px-4 bg-[#A3242B] hover:bg-[#8a1d23] text-white font-semibold rounded-md"
+          className="h-9 w-16 px-4 bg-[#A3242B] hover:bg-[#8a1d23] text-white font-semibold rounded-md"
           aria-label="Đi đến trang"
           tabIndex={0}
         >
