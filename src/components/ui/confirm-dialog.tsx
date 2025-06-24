@@ -60,7 +60,7 @@ const ConfirmDialog = ({
         {isOpen && (
           <DialogContent
             showCloseButton={false}
-            className={`max-w-none p-0 rounded-lg border-none w-9/10 ${widthClass} md:mx-auto overflow-auto`}
+            className={`max-w-none p-0 rounded-lg border-none max-h-[90vh] w-9/10 ${widthClass} md:mx-auto overflow-auto`}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
