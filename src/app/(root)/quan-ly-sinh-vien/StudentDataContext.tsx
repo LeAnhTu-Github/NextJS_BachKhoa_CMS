@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { Classes, Course, Major, TrainingMethod, TrainingType, TrainingUnit } from '@/types/Student';
-import { getClasses, getMajors, getCourses, getTrainingUnits, getTrainingMethods, getTrainingTypes } from '@/services/studentService';
+import { Classes, Course, Major, TemplateFileImport, TrainingMethod, TrainingType, TrainingUnit } from '@/types/Student';
+import { getClasses, getMajors, getCourses, getTrainingUnits, getTrainingMethods, getTrainingTypes, getTemplateFileImport } from '@/services/studentService';
 
 // Định nghĩa type cho context value
 export type StudentDataContextType = {
@@ -18,7 +18,7 @@ export type StudentDataContextType = {
   fetchTrainingTypes: () => Promise<void>;
   isLoading: boolean;
   error: string | null;
-};
+  templateFileImport: TemplateFileImport | null;};
 
 const StudentDataContext = createContext<StudentDataContextType | undefined>(undefined);
 
@@ -30,13 +30,14 @@ export const StudentDataProvider = ({ children }: { children: ReactNode }) => {
   const [trainingMethods, setTrainingMethods] = useState<TrainingMethod[]>([]);
   const [trainingTypes, setTrainingTypes] = useState<TrainingType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [templateFileImport, setTemplateFileImport] = useState<TemplateFileImport | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const fetchClasses = async () => {
     try {
       setIsLoading(true);
       const response = await getClasses();
-      setClasses(response);
+      setClasses(response); 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Có lỗi xảy ra khi tải danh sách lớp';
       setError(errorMessage);
@@ -107,6 +108,18 @@ export const StudentDataProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(false);
     }
   };
+  const fetchTemplateFileImport = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getTemplateFileImport();
+      setTemplateFileImport(response);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Có lỗi xảy ra khi tải file mẫu';
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   useEffect(() => {
     fetchClasses();
     fetchMajors();
@@ -114,6 +127,7 @@ export const StudentDataProvider = ({ children }: { children: ReactNode }) => {
     fetchTrainingUnits();
     fetchTrainingMethods();
     fetchTrainingTypes();
+    fetchTemplateFileImport();
   }, []);
 
   const value: StudentDataContextType = {
@@ -131,6 +145,7 @@ export const StudentDataProvider = ({ children }: { children: ReactNode }) => {
     fetchTrainingTypes,
     isLoading,
     error,
+    templateFileImport,
   };
 
   return (

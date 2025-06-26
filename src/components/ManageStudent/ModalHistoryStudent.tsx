@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ConfirmDialog from "../ui/confirm-dialog";
 import { getHistoryStudent, getTerms } from "@/services/studentService";
-import { EXAM_TYPE_OPTIONS, ExamType, HistoryStudent, TermHistory } from "@/types/Student";
+import { EXAM_TYPE_OPTIONS, ExamType, TermHistory } from "@/types/Student";
 import CustomPagination from "../ui/custom-pagination";
 import { HistoryStudentPaginationResponse, Student } from "@/types/Student";
 import ListHistory from "./ListHistory";
@@ -88,6 +88,7 @@ const ModalHistoryStudent = ({
   }, []);
   const handleSearch = (data: z.infer<typeof formSchema>) => {
     console.log(data);
+    console.log(historyStudent.data);
   };
   const handleRefresh = () => {
     fetchTerms();

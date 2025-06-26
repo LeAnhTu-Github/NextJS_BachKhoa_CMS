@@ -15,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import ConfirmDialog from "../ui/confirm-dialog";
 import { toast } from "sonner";
 import { Student } from "@/types/Student";
@@ -28,6 +29,10 @@ interface ListStudentProps {
   onDelete: (studentId: number) => void;
   onEdit: (student: Student) => void;
   onHistory: (student: Student) => void;
+  isBulkDeleteMode?: boolean;
+  selectedStudentIds?: number[];
+  onStudentSelection?: (studentId: number, isSelected: boolean) => void;
+  onSelectAll?: (isSelected: boolean) => void;
 }
 
 type SelectedStudentAction = {
@@ -42,6 +47,10 @@ const ListStudent = ({
   onDelete,
   onEdit,
   onHistory,
+  isBulkDeleteMode = false,
+  selectedStudentIds = [],
+  onStudentSelection,
+  onSelectAll,
 }: ListStudentProps) => {
   const [selectedStudent, setSelectedStudent] = useState<{
     id: number;
@@ -54,36 +63,60 @@ const ListStudent = ({
     useState<SelectedStudentAction>(null);
 
   const handleStatusChange = (userId: number, newStatus: string) => {
-    setSelectedStudent({ id: userId, newStatus });
-    setIsDialogOpen(true);
+    const currentStudent = students.find(student => student.id === userId);
+    if (currentStudent) {
+      setSelectedStudent({ id: userId, newStatus });
+      setIsDialogOpen(true);
+    }
   };
 
   const handleDelete = (userId: number) => {
     setSelectedStudentAction({ student: students.find(student => student.id === userId)!, action: "delete" });
     setIsDeleteDialogOpen(true);
   }
+  
   const handleDetail = (studentId: number) => {
     setSelectedStudentAction({ student: students.find(student => student.id === studentId)!, action: "detail" });
     setIsDetailDialogOpen(true);
   }
+  
   const handleConfirmDelete = () => {
     onDelete(selectedStudentAction?.student.id || 0);
     setIsDeleteDialogOpen(false);
   }
+  
   const handleConfirmStatusChange = async () => {
-    const reponse = await api.put(`/user/changeStatus/${selectedStudent?.id}`, {
-      id: selectedStudent?.id,
-      status: selectedStudent?.newStatus,
-    });
-    if (reponse.status >= 200 && reponse.status < 300) {
-      toast.success("Cập nhật trạng thái thành công");
-    } else {
-      toast.error("Cập nhật trạng thái thất bại");
+    try {
+      const response = await api.put(`/student/changeStatus/${selectedStudent?.id}`, {
+        id: selectedStudent?.id,
+        status: selectedStudent?.newStatus,
+      });
+      
+      if (response.status >= 200 && response.status < 300) {
+        toast.success("Cập nhật trạng thái thành công");
+      } else {
+        toast.error("Cập nhật trạng thái thất bại");
+      }
+    } catch (error) {
+
+      toast.error("Có lỗi xảy ra khi cập nhật trạng thái" + error);
     }
+    
     setIsDialogOpen(false);
     setSelectedStudent(null);
     onRefresh();
   };
+  const handleStudentCheckboxChange = (studentId: number, checked: boolean) => {
+    onStudentSelection?.(studentId, checked);
+  };
+
+  const handleSelectAllChange = (checked: boolean) => {
+    onSelectAll?.(checked);
+  };
+
+  const isAllSelected = students.length > 0 && selectedStudentIds.length === students.length;
+  
+  const isIndeterminate = selectedStudentIds.length > 0 && selectedStudentIds.length < students.length;
 
   if (isLoading) {
     return (
@@ -95,30 +128,35 @@ const ListStudent = ({
       </div>
     );
   }
-  const StatusSelect = ({ student }: { student: Student }) => (
-    <Select
-      value={student.status}
-      onValueChange={(value) => handleStatusChange(student.id, value)}
-    >
-      <SelectTrigger
-        size="xs"
-        className={`w-auto px-3 rounded-lg text-white text-xs font-thin [&_svg]:text-white [&_svg]:size-5 ${
-          STUDENT_STATUS_OPTIONS.find(
-            (option) => option.value === student.status
-          )?.color
-        }`}
+
+  const StatusSelect = ({ student }: { student: Student }) => {
+    const currentStatus = STUDENT_STATUS_OPTIONS.find(
+      (option) => option.value === student.status
+    );
+    
+    return (
+      <Select
+        value={student.status}
+        onValueChange={(value) => handleStatusChange(student.id, value)}
       >
-        <SelectValue placeholder="Chọn trạng thái" />
-      </SelectTrigger>
-      <SelectContent>
-        {STUDENT_STATUS_OPTIONS.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
-            {option.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  );
+        <SelectTrigger
+          size="xs"
+          className={`w-auto px-3 rounded-lg text-white text-xs font-thin [&_svg]:text-white [&_svg]:size-5 ${
+            currentStatus?.color
+          }`}
+        >
+          <SelectValue placeholder="Chọn trạng thái" />
+        </SelectTrigger>
+        <SelectContent>
+          {STUDENT_STATUS_OPTIONS.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    );
+  };
 
   return (
     <>
@@ -135,6 +173,19 @@ const ListStudent = ({
               tabIndex={0}
               aria-label={`Thông tin sinh viên: ${student.fullName}`}
             >
+              {isBulkDeleteMode && (
+                <div className="flex items-center gap-2 mb-2 justify-start lg:justify-center">
+                  <Checkbox
+                    checked={selectedStudentIds.includes(student.id)}
+                    onCheckedChange={(checked) => 
+                      handleStudentCheckboxChange(student.id, checked as boolean)
+                    }
+                    aria-label={`Chọn sinh viên ${student.fullName}`}
+                  />
+                  <span className="text-sm text-gray-600">Chọn để xóa</span>
+                </div>
+              )}
+              
               <div className="flex justify-between text-sm py-1 border-b">
                 <span className="font-medium text-gray-600">STT</span>
                 <span className="text-gray-800">{idx + 1}</span>
@@ -228,7 +279,7 @@ const ListStudent = ({
                 <span className="font-medium text-gray-600">Chức năng</span>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => {}}
+                    onClick={() => handleDetail(student.id)}
                     className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 focus:outline-none"
                     aria-label="Xem chi tiết"
                     tabIndex={0}
@@ -236,7 +287,7 @@ const ListStudent = ({
                     <i className="mdi mdi-eye w-6 h-6 text-blue-400 text-2xl"></i>
                   </button>
                   <button
-                    onClick={() => {}}
+                    onClick={() => onEdit(student)}
                     className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 focus:outline-none"
                     aria-label="Chỉnh sửa"
                     tabIndex={0}
@@ -244,7 +295,7 @@ const ListStudent = ({
                     <i className="mdi mdi-pencil w-6 h-6 text-[#FFAE1F] text-2xl"></i>
                   </button>
                   <button
-                    onClick={() => handleDelete(student.id)}
+                    onClick={() => onHistory(student)}
                     className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 focus:outline-none"
                     aria-label="Quản lý tài khoản"
                     tabIndex={0}
@@ -252,7 +303,7 @@ const ListStudent = ({
                     <i className="mdi mdi-table-account w-6 h-6 text-[#4CAF50] text-2xl"></i>
                   </button>
                   <button
-                    onClick={() => {}}
+                    onClick={() => handleDelete(student.id)}
                     className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 focus:outline-none"
                     aria-label="Xóa"
                     tabIndex={0}
@@ -265,10 +316,26 @@ const ListStudent = ({
           ))
         )}
       </div>
+      
       <div className="w-full hidden sm:block rounded-lg border border-gray-200 bg-white mt-3 overflow-y-auto">
         <Table>
           <TableHeader className="bg-gray-100">
             <TableRow>
+              {isBulkDeleteMode && (
+                <TableHead className="w-full flex justify-center items-center">
+                  <Checkbox
+                    checked={isAllSelected} 
+                    className="w-5 h-5"
+                    ref={(el: HTMLButtonElement | null) => {
+                      if (el) {
+                        (el as HTMLInputElement).indeterminate = isIndeterminate;
+                      }
+                    }}
+                    onCheckedChange={handleSelectAllChange}
+                    aria-label="Chọn tất cả sinh viên"
+                  />
+                </TableHead>
+              )}
               <TableHead className="w-[50px]">
                 <span className="text-xs font-semibold text-gray-700">STT</span>
               </TableHead>
@@ -308,7 +375,7 @@ const ListStudent = ({
             {students.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={isBulkDeleteMode ? 12 : 11}
                   className="text-center py-6 text-gray-500"
                 >
                   Không có dữ liệu
@@ -317,6 +384,18 @@ const ListStudent = ({
             )}
             {students.map((student, idx) => (
               <TableRow key={student.id} className="hover:bg-gray-50 h-15">
+                {isBulkDeleteMode && (
+                  <TableCell className="">
+                    <Checkbox
+                      className="w-5 h-5"
+                      checked={selectedStudentIds.includes(student.id)}
+                      onCheckedChange={(checked) => 
+                        handleStudentCheckboxChange(student.id, checked as boolean)
+                      }
+                      aria-label={`Chọn sinh viên ${student.fullName}`}
+                    />
+                  </TableCell>
+                )}
                 <TableCell className="text-sm text-gray-700 pl-2">
                   {idx + 1}
                 </TableCell>
@@ -415,6 +494,7 @@ const ListStudent = ({
           </TableBody>
         </Table>
       </div>
+      
       <ConfirmDialog
         isOpen={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
@@ -433,23 +513,25 @@ const ListStudent = ({
       <ConfirmDialog
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        title="Xác nhận"
+        title="Xác nhận thay đổi trạng thái"
         message={
-          <p className="text-[16px] text-gray-600">
-            Bạn có chắc chắn muốn đổi trạng thái từ{" "}
-            <span className="font-semibold text-red-700">
-              {selectedStudent?.newStatus === "ACTIVE"
-                ? "Chưa kích hoạt"
-                : "Kích hoạt"}
-            </span>{" "}
-            sang{" "}
-            <span className="font-semibold text-red-700">
-              {selectedStudent?.newStatus === "ACTIVE"
-                ? "Kích hoạt"
-                : "Chưa kích hoạt"}
-            </span>{" "}
-            không?
-          </p>
+          <div className="text-[16px] text-gray-600">
+            <p>
+              Bạn có chắc chắn muốn đổi trạng thái từ{" "}
+              <span className="font-semibold text-red-700">
+                {STUDENT_STATUS_OPTIONS.find(
+                  (option) => option.value === students.find(s => s.id === selectedStudent?.id)?.status
+                )?.label || "Không xác định"}
+              </span>{" "}
+              sang{" "}
+              <span className="font-semibold text-red-700">
+                {STUDENT_STATUS_OPTIONS.find(
+                  (option) => option.value === selectedStudent?.newStatus
+                )?.label || "Không xác định"}
+              </span>{" "}
+              không?
+            </p>
+          </div>
         }
         onConfirm={handleConfirmStatusChange}
       />
@@ -457,7 +539,11 @@ const ListStudent = ({
         isOpen={isDetailDialogOpen}
         onOpenChange={setIsDetailDialogOpen}
         title="Thông tin sinh viên chi tiết"
-        message={<DetailStudent student={selectedStudentAction?.student!} />}
+        message={
+          selectedStudentAction?.student
+            ? <DetailStudent student={selectedStudentAction.student} />
+            : null
+        }
         hiddenConfirm={true}
         large={true}
         onConfirm={() => {}}

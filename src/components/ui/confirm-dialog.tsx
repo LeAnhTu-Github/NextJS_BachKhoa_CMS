@@ -99,7 +99,7 @@ const ConfirmDialog = ({
                       className={confirmButtonStyle}
                       disabled={isLoading}
                     >
-                      {isLoading ? "Đang xử lý..." : confirmText}
+                      {confirmText}
                     </Button>
                   )}
                 </DialogFooter>

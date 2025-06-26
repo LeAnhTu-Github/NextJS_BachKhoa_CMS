@@ -110,7 +110,11 @@ export interface Course {
   status: Status;
   toTime: string;
 }
-
+export interface TemplateFileImport {
+  data: string;
+  fileName: string;
+  url: string;
+}
 export interface Classes {
   admissionTime: string;
   code: string;
@@ -128,7 +132,10 @@ export interface Classes {
   trainingUnitName: string;
   typeTrainingNames: string;
 }
-
+export interface CheckImportResponse {
+  file: TemplateFileImport;
+  objects: Student[];
+}
 export interface Student {
   address: string;
   birthday: string;

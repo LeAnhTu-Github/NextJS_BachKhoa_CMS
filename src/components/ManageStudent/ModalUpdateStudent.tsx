@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ConfirmDialog from "../ui/confirm-dialog";
@@ -49,8 +48,8 @@ const formSchema = z.object({
     .email("Email cá nhân không hợp lệ")
     .optional()
     .or(z.literal("")),
-  trainingMethodId: z.number().optional(),
-  trainingTypeId: z.number().optional(),
+  trainingMethodId: z.number().nullable().optional(),
+  trainingTypeId: z.number().nullable().optional(),
   startOfTraining: z.string().optional(),
   expiryDate: z.string().optional(),
 });
@@ -97,9 +96,9 @@ const ModalUpdateStudent = ({
       classId: undefined,
       courseId: undefined,
       majorId: undefined,
-      trainingMethodId: undefined,
+      trainingMethodId: null,
       trainingUnitId: undefined,
-      trainingTypeId: undefined,
+      trainingTypeId: null,
       status: StudentStatus.STUDYING,
       startOfTraining: "",
       expiryDate: "",
@@ -126,9 +125,9 @@ const ModalUpdateStudent = ({
         classId: student.classId || undefined,
         courseId: student.courseId || undefined,
         majorId: student.majorId || undefined,
-        trainingMethodId: student.trainingMethodId || undefined,
+        trainingMethodId: student.trainingMethodId || null,
         trainingUnitId: student.trainingUnitId || undefined,
-        trainingTypeId: student.trainingTypeId || undefined,
+        trainingTypeId: student.trainingTypeId || null,
         status: student.status || StudentStatus.STUDYING,
         startOfTraining: student.startOfTraining || "",
         expiryDate: student.expiryDate || "",
@@ -657,9 +656,9 @@ const ModalUpdateStudent = ({
                       Hình thức đào tạo:
                     </Label>
                     <Select
-                      value={form.watch("trainingMethodId")?.toString() || ""}
+                      value={form.watch("trainingMethodId")?.toString() || "null"}
                       onValueChange={(value) => {
-                        form.setValue("trainingMethodId", Number(value));
+                        form.setValue("trainingMethodId", value === "null" ? null : Number(value));
                       }}
                     >
                       <SelectTrigger
@@ -675,6 +674,12 @@ const ModalUpdateStudent = ({
                         <SelectValue placeholder="Chọn hình thức đào tạo" />
                       </SelectTrigger>
                       <SelectContent className="max-h-[280px] overflow-y-auto">
+                        <SelectItem
+                          value="null"
+                          className="text-gray-500"
+                        >
+                          -- Không chọn --
+                        </SelectItem>
                         {trainingMethods.map((option) => (
                           <SelectItem
                             key={option.id}
@@ -697,9 +702,9 @@ const ModalUpdateStudent = ({
                       Loại đào tạo:
                     </Label>
                     <Select
-                      value={form.watch("trainingTypeId")?.toString() || ""}
+                      value={form.watch("trainingTypeId")?.toString() || "null"}
                       onValueChange={(value) => {
-                        form.setValue("trainingTypeId", Number(value));
+                        form.setValue("trainingTypeId", value === "null" ? null : Number(value));
                       }}
                     >
                       <SelectTrigger
@@ -715,6 +720,12 @@ const ModalUpdateStudent = ({
                         <SelectValue placeholder="Chọn loại đào tạo" />
                       </SelectTrigger>
                       <SelectContent className="max-h-[280px] overflow-y-auto">
+                        <SelectItem
+                          value="null"
+                          className="text-gray-500"
+                        >
+                          -- Không chọn --
+                        </SelectItem>
                         {trainingTypes.map((option) => (
                           <SelectItem
                             key={option.id}

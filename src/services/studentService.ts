@@ -13,7 +13,44 @@ import {
   TermHistory,
   HistoryStudentQueryParams,
   HistoryStudentPaginationResponse,
+  TemplateFileImport,
+  CheckImportResponse,
 } from "@/types/Student";
+
+// template file import
+export const getTemplateFileImport = async (): Promise<TemplateFileImport> => {
+  const response = await api.get("/student/templateImport");
+  return response.data.data;
+} 
+
+export const checkImportExcel = async (file: File): Promise<CheckImportResponse> => {
+  console.log(33333, file)
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const response = await api.post("/student/checkImport", formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  console.log(555,response);
+  return response.data.data;
+}
+
+export const importExcel = async (fileUrl: string, students: Student[]): Promise<{ success: number; failed: number; errors: string[] }> => {
+  const body = {
+    fileUrl: fileUrl,
+    students: students
+  }
+  
+  const response = await api.post("/student/importExcel", body);
+  return response.data.data;
+}
+
+export const exportExcel = async (): Promise<TemplateFileImport> => {
+  const response = await api.get("/student/exportExcel");
+  return response.data.data;
+}
 
 // Get students with pagination and filters
 export const getStudents = async (
@@ -121,6 +158,37 @@ export const getStudentsByTrainingUnit = async (
   const response = await api.get(`/training-units/${trainingUnitId}/students`, {
     params,
   });
+  return response.data;
+};
+
+export const importStudents = async (students: StudentFormData[]): Promise<{ success: number; failed: number; errors: string[] }> => {
+  try {
+    const results = await Promise.allSettled(
+      students.map(student => createStudent(student))
+    );
+    
+    const success = results.filter(result => result.status === 'fulfilled').length;
+    const failed = results.filter(result => result.status === 'rejected').length;
+    const errors = results
+      .map((result, index) => {
+        if (result.status === 'rejected') {
+          return `Dòng ${index + 1}: ${result.reason?.message || 'Lỗi không xác định'}`;
+        }
+        return null;
+      })
+      .filter(Boolean) as string[];
+
+    return { success, failed, errors };
+  } catch (error) {
+    console.log(error);
+    throw new Error('Có lỗi xảy ra khi import sinh viên');
+  }
+};
+
+export const deleteStudents = async (ids: number[]): Promise<void> => {
+  const response = await api.post("/student/deleteStudents",{
+   ids
+  })
   return response.data;
 };
 
