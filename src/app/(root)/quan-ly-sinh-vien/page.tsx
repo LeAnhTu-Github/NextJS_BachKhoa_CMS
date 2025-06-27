@@ -161,7 +161,7 @@ const ManageStudentPage = () => {
 
   const handleImportStudents = async () => {
     fetchStudents();
-  };  
+  };
 
   const handleImportExcelResult = async (result: {
     success: number;
@@ -226,7 +226,7 @@ const ManageStudentPage = () => {
           onSearch={handleSearch}
           onRefresh={fetchStudents}
           onAdd={() => setIsOpenModalCreate(true)}
-        />  
+        />
         <div className="flex items-center justify-start bg-white p-4 gap-10 rounded-lg">
           <div className="flex items-center gap-3">
             <Switch
@@ -332,9 +332,8 @@ const ManageStudentPage = () => {
 
         {importResult && (
           <div
-            className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ${
-              isImportResultModalOpen ? "block" : "hidden"
-            }`}
+            className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ${isImportResultModalOpen ? "block" : "hidden"
+              }`}
           >
             <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
               <h3 className="text-lg font-semibold mb-4">Kết quả Import</h3>

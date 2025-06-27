@@ -17,8 +17,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import UserActionsDropdown from "./UserActionsDropdown";
-import ConfirmDialog from "../ui/confirm-dialog";
+import UserActionsDropdown from "@/components/User/UserActionsDropdown";
+import ConfirmDialog from "@/components/ui/confirm-dialog";
 import { toast } from "sonner";
 import NextImage from "next/image";
 import { ArrowUpDown, ArrowUp } from "lucide-react";
