@@ -262,80 +262,80 @@ export interface StudentFormData {
   degreeType: DegreeType;
 }
 
-// Types for History Student API response
-export interface HistoryStudentPaginationResponse {
-  beginIndex: number;
-  data: HistoryStudent[];
-  endIndex: number;
-  pageIndex: number;
-  pageSize: number;
-  totalPages: number;
-  totalRecords: number;
-}
+// // Types for History Student API response
+// export interface HistoryStudentPaginationResponse {
+//   beginIndex: number;
+//   data: HistoryStudent[];
+//   endIndex: number;
+//   pageIndex: number;
+//   pageSize: number;
+//   totalPages: number;
+//   totalRecords: number;
+// }
 
-export interface HistoryStudent {
-  completedTime: string;
-  examType: ExamType;
-  term: HistoryStudentTerm;
-}
+// export interface HistoryStudent {
+//   completedTime: string;
+//   examType: ExamType;
+//   term: HistoryStudentTerm;
+// }
 
-export interface HistoryStudentTerm {
-  address: string;
-  code: string;
-  creditHours: number;
-  creditTraining: number;
-  educationCodes: string[];
-  educationNames: string[];
-  id: number;
-  name: string;
-  reDefenseRegisterStudentExams: ReDefenseRegisterStudentExam[];
-  status: Status;
-  updateTime: string;
-  weight: number;
-  workload: string;
-}
+// export interface HistoryStudentTerm {
+//   address: string;
+//   code: string;
+//   creditHours: number;
+//   creditTraining: number;
+//   educationCodes: string[];
+//   educationNames: string[];
+//   id: number;
+//   name: string;
+//   reDefenseRegisterStudentExams: ReDefenseRegisterStudentExam[];
+//   status: Status;
+//   updateTime: string;
+//   weight: number;
+//   workload: string;
+// }
 
-export interface ReDefenseRegisterStudentExam {
-  birthday: string;
-  clazz: Classes;
-  code: string;
-  confirmBy: number;
-  course: Course;
-  createBy: number;
-  createTime: string;
-  creditApprovedAt: string;
-  creditApprovedBy: number;
-  creditManagement: string;
-  dateFeePaid: string;
-  dateImport: string;
-  email: string;
-  exam: HistoryStudentExam;
-  feePaid: number;
-  feePaidStatus: string;
-  fullName: string;
-  gender: Gender;
-  id: number;
-  isDelete: number;
-  isListedForBank: string;
-  major: Major;
-  orderCode: string;
-  phone: string;
-  registerStudentStatus: string;
-  retakeCourseStatus: string;
-  sendMailStatus: string;
-  student: HistoryStudentInfo;
-  studentApprovedAt: string;
-  studentApprovedBy: number;
-  studentManagement: string;
-  term: HistoryStudentTermSummary;
-  totalFee: number;
-  trainingUnit: TrainingUnit;
-  tuitionFeeApprovedAt: string;
-  tuitionFeeApprovedBy: number;
-  tuitionFeeManagement: string;
-  updateBy: number;
-  updateTime: string;
-}
+// export interface ReDefenseRegisterStudentExam {
+//   birthday: string;
+//   clazz: Classes;
+//   code: string;
+//   confirmBy: number;
+//   course: Course;
+//   createBy: number;
+//   createTime: string;
+//   creditApprovedAt: string;
+//   creditApprovedBy: number;
+//   creditManagement: string;
+//   dateFeePaid: string;
+//   dateImport: string;
+//   email: string;
+//   exam: HistoryStudentExam;
+//   feePaid: number;
+//   feePaidStatus: string;
+//   fullName: string;
+//   gender: Gender;
+//   id: number;
+//   isDelete: number;
+//   isListedForBank: string;
+//   major: Major;
+//   orderCode: string;
+//   phone: string;
+//   registerStudentStatus: string;
+//   retakeCourseStatus: string;
+//   sendMailStatus: string;
+//   student: HistoryStudentInfo;
+//   studentApprovedAt: string;
+//   studentApprovedBy: number;
+//   studentManagement: string;
+//   term: HistoryStudentTermSummary;
+//   totalFee: number;
+//   trainingUnit: TrainingUnit;
+//   tuitionFeeApprovedAt: string;
+//   tuitionFeeApprovedBy: number;
+//   tuitionFeeManagement: string;
+//   updateBy: number;
+//   updateTime: string;
+// }
 
 export interface HistoryStudentExam {
   code: string;

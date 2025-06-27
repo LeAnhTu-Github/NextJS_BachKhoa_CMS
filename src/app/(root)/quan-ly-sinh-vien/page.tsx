@@ -151,6 +151,8 @@ const ManageStudentPage = () => {
   const handleUpdateStudent = async (id: number, data: StudentFormData) => {
     try {
       await updateStudent(id, data);
+      toast.success("Cập nhật sinh viên thành công");
+      fetchStudents();
       setIsUpdateModalOpen(false);
     } catch (error) {
       toast.error("Có lỗi xảy ra khi cập nhật sinh viên" + error);

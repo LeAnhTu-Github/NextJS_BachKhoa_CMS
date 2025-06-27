@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import ConfirmDialog from "../ui/confirm-dialog";
 import { getHistoryStudent, getTerms } from "@/services/studentService";
-import { EXAM_TYPE_OPTIONS, ExamType, TermHistory } from "@/types/Student";
+import { EXAM_TYPE_OPTIONS, ExamType, StudentPaginationResponse, TermHistory } from "@/types/Student";
 import CustomPagination from "../ui/custom-pagination";
-import { HistoryStudentPaginationResponse, Student } from "@/types/Student";
+import { Student } from "@/types/Student";
 import ListHistory from "./ListHistory";
 import {
   Select,
@@ -36,7 +36,7 @@ const ModalHistoryStudent = ({
 }: ModalHistoryStudentProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [terms, setTerms] = useState<TermHistory[]>([]);
-  const [historyStudent, setHistoryStudent] = useState<HistoryStudentPaginationResponse>({
+  const [historyStudent, setHistoryStudent] = useState<StudentPaginationResponse>({
     beginIndex: 0,
     data: [],
     endIndex: 0,

@@ -12,7 +12,6 @@ import {
   TrainingType,
   TermHistory,
   HistoryStudentQueryParams,
-  HistoryStudentPaginationResponse,
   TemplateFileImport,
   CheckImportResponse,
 } from "@/types/Student";
@@ -75,7 +74,7 @@ export const getTerms = async (): Promise<TermHistory[]> => {
   const response = await api.get("/term/list");
   return response.data.data;
 } 
-export const getHistoryStudent = async (params: HistoryStudentQueryParams): Promise<HistoryStudentPaginationResponse> => {
+export const getHistoryStudent = async (params: HistoryStudentQueryParams): Promise<StudentPaginationResponse> => {
   const response = await api.get(`/student/history`, { params });
   return response.data;
 }

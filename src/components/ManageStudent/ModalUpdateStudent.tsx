@@ -30,7 +30,7 @@ const formSchema = z.object({
   code: z.string().min(1, "Mã số sinh viên là bắt buộc"),
   email: z.string().email("Email không hợp lệ"),
   status: z.nativeEnum(StudentStatus),
-  trainingUnitId: z.number({ required_error: "Địa điểm đào tạo là bắt buộc" }),
+  trainingUnitId: z.number().nullable().optional(),
   majorId: z.number().min(1, "Ngành là bắt buộc"),
   degreeType: z.nativeEnum(DegreeType),
   courseId: z.number().min(1, "Khóa học là bắt buộc"),
@@ -86,18 +86,18 @@ const ModalUpdateStudent = ({
       email: "",
       phone: "",
       gender: Gender.MALE,
-      birthday: null,
+      birthday: "",
       address: "",
       birthplace: "",
       homeTown: "",
-      citizen: null,
+      citizen: "",
       ethnicity: "",
       emailOther: "",
       classId: undefined,
       courseId: undefined,
       majorId: undefined,
       trainingMethodId: null,
-      trainingUnitId: undefined,
+      trainingUnitId: null,
       trainingTypeId: null,
       status: StudentStatus.STUDYING,
       startOfTraining: "",
@@ -127,7 +127,7 @@ const ModalUpdateStudent = ({
         majorId: student.majorId || undefined,
         trainingMethodId: student.trainingMethodId || null,
         trainingUnitId: student.trainingUnitId || undefined,
-        trainingTypeId: student.trainingTypeId || null,
+        trainingTypeId: student.trainingType.id || undefined,
         status: student.status || StudentStatus.STUDYING,
         startOfTraining: student.startOfTraining || "",
         expiryDate: student.expiryDate || "",
@@ -137,8 +137,6 @@ const ModalUpdateStudent = ({
   }, [student, form]);
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(12345, values);
-
     if (student) {
       onSubmit(student.id, values as unknown as StudentFormData);
     }
@@ -387,7 +385,7 @@ const ModalUpdateStudent = ({
                           <SelectItem
                             key={option.value}
                             value={option.value}
-                            className="text-[#A2212B] caret-[#A2212B]"
+                            className="text-gray-500 caret-gray-500"
                           >
                             {option.label}
                           </SelectItem>

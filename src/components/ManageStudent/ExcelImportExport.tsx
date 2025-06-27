@@ -25,6 +25,17 @@ interface ValidationResult {
   students?: Student[];
 }
 
+interface ApiErrorResponse {
+  response?: {
+    data?: {
+      error?: {
+        message?: string;
+      };
+    };
+  };
+  message?: string;
+}
+
 const ExcelImportExport: React.FC<ExcelImportExportProps> = ({
   students,
   onImport,
@@ -145,9 +156,23 @@ const ExcelImportExport: React.FC<ExcelImportExportProps> = ({
       }
       
       onImport([]);
-    } catch (error) {
-      console.error("Lỗi khi import file:", error);
-      toast.error("Có lỗi xảy ra khi import file Excel");
+    } catch (error: unknown) {
+      let errorMessage = "Có lỗi xảy ra khi import file Excel";
+      
+      if (error && typeof error === 'object' && 'response' in error) {
+        const apiError = error as ApiErrorResponse;
+        if (apiError.response?.data?.error?.message) {
+          errorMessage = apiError.response.data.error.message;
+        } else if (apiError.message) {
+          errorMessage = apiError.message;
+        }
+      } else if (error && typeof error === 'string') {
+        errorMessage = error;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      toast.warning(errorMessage);
     } finally {
       setIsImporting(false);
     }
