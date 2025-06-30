@@ -1,4 +1,4 @@
-import { ExamRequest, ExamRequestResponse, ExamStatus, GetExamParams } from "@/types/Retake";
+import { ExamRequest, ExamStatus, GetExamParams } from "@/types/Retake";
 import api from "./api";
 
 export const getExam = async (params: GetExamParams) => {

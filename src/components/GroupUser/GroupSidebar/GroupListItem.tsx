@@ -169,7 +169,7 @@ const GroupListItem = ({
       <div className="w-full h-full p-4 border-none">
         {filteredGroups.map((group) => (
           <Button
-            variant="group"
+            variant="outline"
             size="sm"
             className={`w-full h-10 px-4  flex items-center justify-start border-none rounded-[3px] ${
               selectedGroupId === group.id
