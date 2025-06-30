@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import UserActionsDropdown from "@/components/User/UserActionsDropdown";
+import UserActionsDropdown from "./UserActionsDropdown";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
 import { toast } from "sonner";
 import NextImage from "next/image";
