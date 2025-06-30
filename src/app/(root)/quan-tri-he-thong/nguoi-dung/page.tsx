@@ -2,11 +2,11 @@
 import React, { useState, useEffect } from "react";
 import { User, UserListResponse } from "@/types/User";
 import api from "@/services/api";
-import ListUser from "@/components/User/ListUser";
-import UserSearchForm from "@/components/User/UserSearchForm";
+import ListUser from '../../../../components/User/ListUser'
+import UserSearchForm from '../../../../components/User/UserSearchForm'
 import CustomPagination from "@/components/ui/custom-pagination";
-import ModalCreateUser from "@/components/User/ModalCreateUser";
-import ModalEditUser from "@/components/User/ModalEditUser";
+import ModalCreateUser from '../../../../components/User/ModalCreateUser'
+import ModalEditUser from '../../../../components/User/ModalEditUser'
 
 import { toast } from "sonner";
 
