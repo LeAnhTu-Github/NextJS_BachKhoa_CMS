@@ -23,7 +23,6 @@ export const getTemplateFileImport = async (): Promise<TemplateFileImport> => {
 } 
 
 export const checkImportExcel = async (file: File): Promise<CheckImportResponse> => {
-  console.log(33333, file)
   const formData = new FormData();
   formData.append('file', file);
   
@@ -32,7 +31,6 @@ export const checkImportExcel = async (file: File): Promise<CheckImportResponse>
       'Content-Type': 'multipart/form-data',
     },
   });
-  console.log(555,response);
   return response.data.data;
 }
 

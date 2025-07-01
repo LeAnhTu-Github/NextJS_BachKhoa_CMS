@@ -170,8 +170,7 @@ const ExcelImportExport: React.FC<ExcelImportExportProps> = ({
         errorMessage = error;
       } else if (error instanceof Error) {
         errorMessage = error.message;
-      }
-      
+      } 
       toast.warning(errorMessage);
     } finally {
       setIsImporting(false);
