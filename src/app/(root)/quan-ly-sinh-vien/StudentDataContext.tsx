@@ -74,7 +74,6 @@ export const StudentDataProvider = ({ children }: { children: ReactNode }) => {
     try {
       setIsLoading(true);
       const response = await getTrainingTypes();
-      console.log(response);
       setTrainingTypes(response);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Có lỗi xảy ra khi tải danh sách loại đào tạo';

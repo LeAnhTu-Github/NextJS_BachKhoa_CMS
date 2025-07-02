@@ -16,16 +16,18 @@ type FormValues = {
   status?: string;
 };
 const RegisterRetestManager = () => {
+  const [searchParams, setSearchParams] = useState<FormValues>({
+    search: "",
+    fromTime: "",
+    toTime: "",
+    status: undefined,
+  });
   const [exam, setExam] = useState<ExamRequest[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [pageSize, setPageSize] = useState(50);
   const [totalPages, setTotalPages] = useState(0);
   const [totalRecords, setTotalRecords] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<ExamStatus | undefined>(undefined);
-  const [fromTime, setFromTime] = useState<string | undefined>(undefined);
-  const [toTime, setToTime] = useState<string | undefined>(undefined);
   const [openModalCreateExam, setOpenModalCreateExam] = useState(false);
   const [listSemester, setListSemester] = useState<Semester[]>([]);
   const [selectedExam, setSelectedExam] = useState<ExamRequest | null>(null);
@@ -43,20 +45,21 @@ const RegisterRetestManager = () => {
       toast.error(errorMessage);
     }
   };
-  const fetchExam = async () => {
+  const fetchData = async () => {
     try {
       setIsLoading(true);
       const response = await getExam({
-        pageIndex: pageIndex,
+        pageIndex: pageIndex, 
         pageSize: pageSize,
-        search: search,
-        status: status,
-        fromTime: fromTime,
-        toTime: toTime,
+        search: searchParams.search,
+        status: searchParams.status as ExamStatus,
+        fromTime: searchParams.fromTime ? convertDateForSearch(searchParams.fromTime) : undefined,
+        toTime: searchParams.toTime ? convertDateForSearch(searchParams.toTime) : undefined,
       });
       setExam(response.data.data);
       setTotalPages(response.data.totalPages);
       setTotalRecords(response.data.totalRecords);
+
     } catch (error) {
       const errorMessage =
         error instanceof Error
@@ -67,32 +70,22 @@ const RegisterRetestManager = () => {
       setIsLoading(false);
     }
   };
-  const refresh = async () => {
+  const onRefresh = () => {
     setPageIndex(1);
-    setPageSize(50);
-    setFromTime(undefined);
-    setToTime(undefined);
-    setSearch("");
-    setStatus(undefined);
-    await fetchExam();
+    setPageSize(10);
+    setSearchParams({
+      search: "",
+      fromTime: "",
+      toTime: "",
+      status: undefined,
+    });
   };
   const onEdit = (exam: ExamRequest) => {
     setSelectedExam(exam);
     setOpenUpdateModal(true);
   };
   const handleSearch = (values: FormValues) => {
-    const searchPayload = Object.entries(values).reduce((acc, [key, value]) => {
-      if (value && value !== "") {
-        acc[key as keyof FormValues] = value;
-      }
-      return acc;
-    }, {} as FormValues);
-  
-    setPageIndex(1);
-    setSearch(searchPayload.search || "");
-    setStatus(searchPayload.status as ExamStatus);
-    setFromTime(convertDateForSearch(searchPayload.fromTime || ""));
-    setToTime(convertDateForSearch(searchPayload.toTime || ""));
+    setSearchParams(values);
   };
 
   useEffect(() => {
@@ -100,8 +93,8 @@ const RegisterRetestManager = () => {
   }, []);
   
   useEffect(() => {
-    fetchExam();
-  }, [pageIndex, pageSize, search, status, fromTime, toTime]);
+    fetchData();
+  }, [pageIndex, pageSize, searchParams]);
 
   if (isLoading) {
     return (
@@ -113,20 +106,20 @@ const RegisterRetestManager = () => {
       </div>
     );
   }
-
   return (
     <div className="p-3 flex flex-col gap-3">
       <RetakeSearchForm
         userCount={totalRecords || 0}
         onSearch={handleSearch}
-        onRefresh={refresh}
+        onRefresh={onRefresh}
         onAdd={() => setOpenModalCreateExam(true)}
+        initialValues={searchParams}
       />
       <div className="w-full flex flex-col gap-3 max-h-[calc(100vh-200px)] overflow-y-auto">
         <ListExam
           exam={exam}
           isLoading={isLoading}
-          onRefresh={refresh}
+          onRefresh={onRefresh}
           onEdit={onEdit}
         />
         <CustomPagination
@@ -141,13 +134,13 @@ const RegisterRetestManager = () => {
       <ModalCreateExam
         open={openModalCreateExam}
         onOpenChange={setOpenModalCreateExam}
-        onRefresh={refresh}
+        onRefresh={onRefresh}
         listSemester={listSemester}
       />
       <ModalUpdateExam
         open={openUpdateModal}
         onOpenChange={setOpenUpdateModal}
-        onRefresh={refresh}
+        onRefresh={onRefresh}
         selectedExam={selectedExam as ExamRequest}
         listSemester={listSemester}
       />

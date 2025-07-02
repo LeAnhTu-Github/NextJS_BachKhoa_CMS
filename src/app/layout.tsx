@@ -2,19 +2,47 @@
 import { Toaster } from "sonner";
 import "./globals.css";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { useAuthGuard } from "@/hooks/useAuthGuard";
+import { usePathname } from "next/navigation";
+import { publicPaths } from "../../middleware";
+import { AuthGuardProvider } from "@/contexts/AuthGuardContext";
+import useAuthGuard from "@/hooks/useAuthGuard";
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { user, pageRoles, loading, logout } = useAuthGuard();
+  const pathname = usePathname();
 
+  if (publicPaths.includes(pathname)) {
+    return (
+      <html lang="en" className="mdl-js">
+        <body>
+          <Toaster
+            position="top-right"
+            expand
+            duration={5000}
+            richColors
+            closeButton
+          />
+          {children}
+        </body>
+      </html>
+    );
+  }
 
   return (
-    <>
-    {loading && (
+    <AuthGuardProvider>
+      <AuthGuardedLayout>{children}</AuthGuardedLayout>
+    </AuthGuardProvider>
+  );
+}
+
+const AuthGuardedLayout = ({ children }: { children: React.ReactNode }) => {
+  const { user, pageRoles, loading, logout } = useAuthGuard();
+
+  if (loading) {
+    return (
       <html lang="en" className="mdl-js">
         <body>
           <div className="flex justify-center items-center h-screen">
@@ -22,8 +50,10 @@ export default function RootLayout({
           </div>
         </body>
       </html>
-    )}
-    {!loading && (
+    );
+  }
+
+  return (
     <html lang="en" className="mdl-js">
       <body>
         <Toaster
@@ -42,7 +72,5 @@ export default function RootLayout({
         )}
       </body>
     </html>
-    )}
-    </>
   );
-}
+};

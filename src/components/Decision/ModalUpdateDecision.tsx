@@ -84,7 +84,6 @@ const ModalUpdateDecision = ({
   } = form;
 
   useEffect(() => {
-    console.log(88888, decision);
     if (decision && isOpen) {
       const formData = {
         name: decision.name || "",
@@ -136,7 +135,7 @@ const ModalUpdateDecision = ({
       const response = await getMajorsList();
       setMajors(response.data);
     } catch (error) {
-      console.log(error);
+      throw new Error("Có lỗi xảy ra khi tải danh sách ngành học: " + error);
     }
   };
 

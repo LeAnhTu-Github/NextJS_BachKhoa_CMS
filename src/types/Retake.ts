@@ -6,6 +6,14 @@ export const STATUS_OPTIONS = [
   { value: ExamStatus.INACTIVE, label: "Không hoạt động" },
   { value: ExamStatus.ACTIVE, label: "Kích hoạt " },
 ];
+
+export interface ExamSearchParams {
+  search?: string;
+  fromTime?: string;
+  toTime?: string;
+  status?: ExamStatus;
+}
+
 export interface ExamRequest {
     id: number;
     code: string;

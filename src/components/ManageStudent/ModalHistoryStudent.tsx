@@ -89,6 +89,9 @@ const ModalHistoryStudent = ({
   const handleSearch = (data: z.infer<typeof formSchema>) => {
     console.log(data);
     console.log(historyStudent.data);
+    setPageIndex(1);
+    setPageSize(50);
+    fetchHistoryStudent();
   };
   const handleRefresh = () => {
     fetchTerms();

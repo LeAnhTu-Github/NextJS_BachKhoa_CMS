@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const publicPaths = ['/dang-nhap']
+export const publicPaths = ['/dang-nhap']
 
 export function middleware(request: NextRequest) {
 

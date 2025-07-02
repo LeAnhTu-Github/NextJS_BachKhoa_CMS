@@ -78,8 +78,6 @@ const TablePageRole = ({
         setSelected([]);
         return;
       }
-      console.log('listSelected - 1', listSelected);
-      console.log('selectedRoles - 1', selectedRoles);
       const selectedPageIds = new Set([
         ...listSelected.map(page => page.id),
         ...selectedRoles.map(role => role.pageId)
@@ -91,8 +89,6 @@ const TablePageRole = ({
 
   useEffect(() => {
     if (listPageRoles.length > 0) {
-      console.log('listSelected - 2', listSelected);
-      console.log('selectedRoles - 2', selectedRoles);
       const selectedPageIds = new Set(
         selectedRoles.map(role => role.pageId)
       );

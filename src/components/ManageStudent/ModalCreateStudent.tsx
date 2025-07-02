@@ -104,7 +104,6 @@ const ModalCreateStudent = ({
   });
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
     onSubmit(values as StudentFormData);
   };
 

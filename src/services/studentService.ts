@@ -177,8 +177,7 @@ export const importStudents = async (students: StudentFormData[]): Promise<{ suc
 
     return { success, failed, errors };
   } catch (error) {
-    console.log(error);
-    throw new Error('Có lỗi xảy ra khi import sinh viên');
+    throw new Error('Có lỗi xảy ra khi import sinh viên' + error);
   }
 };
 

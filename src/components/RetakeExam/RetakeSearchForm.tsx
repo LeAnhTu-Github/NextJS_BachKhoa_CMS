@@ -1,10 +1,9 @@
 import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Controller } from "react-hook-form";
 import {
   Select,
   SelectContent,
@@ -18,7 +17,7 @@ const formSchema = z.object({
   search: z.string().optional(),
   fromTime: z.string().optional(),
   toTime: z.string().optional(),
-  status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
+  status: z.string().optional(),
 });
 
 export type FormValues = z.infer<typeof formSchema>;
@@ -40,13 +39,14 @@ const RetakeSearchForm = ({
 }: RetakeSearchFormProps) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
+    defaultValues: initialValues || {
       search: "",
       fromTime: "",
       toTime: "",
       status: undefined,
     },
   });
+
   useEffect(() => {
     if (initialValues) {
       form.reset({
@@ -63,6 +63,12 @@ const RetakeSearchForm = ({
   };
 
   const handleRefresh = () => {
+    form.reset({
+      search: "",
+      fromTime: "",
+      toTime: "",
+      status: undefined,
+    });
     onRefresh?.();
   };
 
@@ -79,55 +85,62 @@ const RetakeSearchForm = ({
           className="flex flex-col lg:flex-row gap-4 w-full"
         >
           <div className="flex flex-col md:flex-row gap-4 flex-1 justify-end">
-            <Input
-              {...form.register("search")}
-              placeholder="Họ tên"
-              className="h-10 w-full lg:max-w-[300px]"
-              aria-label="Tìm theo họ tên"
-              value={form.watch("search")}
-            />
             <Controller
+              name="search"
               control={form.control}
-              name="fromTime"
               render={({ field }) => (
                 <Input
                   {...field}
-              placeholder="Từ ngày"
-              type="date"
-              className="h-10 w-full lg:max-w-[300px]"
-              aria-label="Tìm theo từ ngày"
-                    value={field.value}
+                  placeholder="Họ tên"
+                  className="h-10 w-full lg:max-w-[300px]"
+                  aria-label="Tìm theo họ tên"
                 />
               )}
             />
             <Controller
+              name="fromTime"
               control={form.control}
-              name="toTime"
               render={({ field }) => (
                 <Input
-              {...field}
-              placeholder="Đến ngày"
-              type="date"
-              className="h-10 w-full lg:max-w-[300px]"
-              aria-label="Tìm theo đến ngày"
-                value={field.value}
-              />
-            )}
+                  {...field}
+                  placeholder="Từ ngày"
+                  type="date"
+                  className="h-10 w-full lg:max-w-[300px]"
+                  aria-label="Tìm theo từ ngày"
+                />
+              )}
             />
-            <Select
-              onValueChange={(value) =>
-                form.setValue("status", value as FormValues["status"])
-              }
-              value={form.watch("status")}
-            >
-              <SelectTrigger className="h-10 w-full lg:max-w-[300px]">
-                <SelectValue placeholder="Trạng thái" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ACTIVE">Kích hoạt</SelectItem>
-                <SelectItem value="INACTIVE">Chưa kích hoạt</SelectItem>
-              </SelectContent>
-            </Select>
+            <Controller
+              name="toTime"
+              control={form.control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Đến ngày"
+                  type="date"
+                  className="h-10 w-full lg:max-w-[300px]"
+                  aria-label="Tìm theo đến ngày"
+                />
+              )}
+            />
+            <Controller
+              name="status"
+              control={form.control}
+              render={({ field }) => (
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value ?? ""}
+                >
+                  <SelectTrigger className="h-10 w-full lg:max-w-[300px]">
+                    <SelectValue placeholder="Trạng thái" defaultValue={""} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ACTIVE">Kích hoạt</SelectItem>
+                    <SelectItem value="INACTIVE">Chưa kích hoạt</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
           <div className="flex items-center gap-4 shrink-0">
             <Button
@@ -153,7 +166,7 @@ const RetakeSearchForm = ({
               size="icon"
               className="h-10 w-10 bg-[#A2212B]"
               onClick={onAdd}
-              aria-label="Thêm người dùng"
+              aria-label="Thêm kỳ thi lại"
             >
               <Plus className="h-5 w-5 text-white" />
             </Button>

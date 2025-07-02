@@ -23,7 +23,7 @@ import { ExamRequest } from "@/types/Retake";
 import { changeStatusExam, deleteExam } from "@/services/retakeExamService";
 
 interface ListExamProps {
-  exam: ExamRequest[];
+  exam: ExamRequest[] | [];
   isLoading: boolean;
   onRefresh: () => void;
   onEdit: (exam: ExamRequest) => void;

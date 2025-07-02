@@ -1,5 +1,6 @@
-import { CreateDecisionRequest, DecisionRequest, DecisionStatus } from "@/types/Decision";
+import { CreateDecisionRequest, DecisionRequest, DecisionStatus, ImportDecisionRequest } from "@/types/Decision";
 import api from "./api";
+import { CheckImportResponse } from "@/types/Student";
 
 export const getDecision = async (params: DecisionRequest) => {
   const response = await api.get("/decisionFee", { params });
@@ -66,3 +67,23 @@ export const updateDecision = async (id: number, data: CreateDecisionRequest) =>
   const response = await api.put(`/decisionFee/${id}`, data);
   return response.data;
 };
+
+export const getTemplateDecision = async () => {
+  const response = await api.get("/decisionFee/template");
+  return response.data.data;
+}
+export const importExcel = async (body : ImportDecisionRequest) => {
+  const response = await api.post("/decisionFee/import", body);
+  return response.data;
+}
+
+export const checkImportExcel = async (file: File): Promise<CheckImportResponse> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await api.post("/decisionFee/import/check", formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data.data;
+}

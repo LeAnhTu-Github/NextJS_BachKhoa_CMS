@@ -109,3 +109,19 @@ export type CreateDecisionRequest = {
   timeInform: string;
   estimationRequests: EstimationRequest[];
 };
+
+export type decisionFeeImport = {
+  examType: "RETAKE_EXAM";
+  isError: "NO";
+  messageError: string[];
+  name: string;
+  semesterCode: string;
+  timeInform: string;
+  timeInformStr: string;
+}
+
+export type ImportDecisionRequest = {
+  fileUrl: string;
+  estimationImports: EstimationRequest[];
+  decisionFeeImport: decisionFeeImport;
+}

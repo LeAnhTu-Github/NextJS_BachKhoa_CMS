@@ -1,14 +1,28 @@
 "use client";
 import React, { useEffect } from "react";
 import { useState } from "react";
-import { createDecision, getDecision, getSemesters, updateDecision } from "@/services/decisionService";
-import { CreateDecisionRequest, Decision, DecisionSearchParams, DecisionStatus, Semester } from "@/types/Decision";
-import DecisionSearchForm, { FormValues } from "@/components/Decision/DecisionSearchForm";
+import {
+  createDecision,
+  getDecision,
+  getSemesters,
+  updateDecision,
+} from "@/services/decisionService";
+import {
+  CreateDecisionRequest,
+  Decision,
+  DecisionSearchParams,
+  DecisionStatus,
+  Semester,
+} from "@/types/Decision";
+import DecisionSearchForm, {
+  FormValues,
+} from "@/components/Decision/DecisionSearchForm";
 import DecisionTable from "@/components/Decision/DecisionTable";
 import CustomPagination from "@/components/ui/custom-pagination";
 import ModalDetailDecision from "@/components/Decision/ModalDetailDecision";
 import ModalCreateDecision from "@/components/Decision/ModalCreateDecision";
 import ModalUpdateDecision from "@/components/Decision/ModalUpdateDecision";
+import ExcelImport from "@/components/Decision/ExcelImport";
 import { toast } from "sonner";
 
 const DecisionPage = () => {
@@ -23,7 +37,9 @@ const DecisionPage = () => {
   const [pageSize, setPageSize] = useState<number>(50);
   const [totalRecords, setTotalRecords] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [selectedDecision, setSelectedDecision] = useState<Decision | null>(null);
+  const [selectedDecision, setSelectedDecision] = useState<Decision | null>(
+    null
+  );
   const [isOpenDetail, setIsOpenDetail] = useState<boolean>(false);
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [isOpenCreate, setIsOpenCreate] = useState<boolean>(false);
@@ -31,12 +47,12 @@ const DecisionPage = () => {
   const [isOpenUpdate, setIsOpenUpdate] = useState<boolean>(false);
   const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
   const fetchSemesters = async () => {
-   try {
-    const response = await getSemesters();
-    setSemesters(response.data);
-   } catch (error) {
-    console.log(error);
-   }
+    try {
+      const response = await getSemesters();
+      setSemesters(response.data);
+    } catch (error) {
+      console.log(error);
+    }
   };
   const fetchData = async () => {
     setIsLoading(true);
@@ -115,13 +131,14 @@ const DecisionPage = () => {
     }
   };
   return (
-    <div className="p-3 flex flex-col gap-3">   
+    <div className="p-3 flex flex-col gap-3">
       <DecisionSearchForm
         userCount={totalRecords}
         semesters={semesters}
         onSearch={handleSearch}
         onRefresh={onRefresh}
         onAdd={handleAdd}
+        initialValues={searchParams}
       />
       <div className="w-full flex flex-col gap-3 max-h-[calc(100vh-200px)] overflow-y-auto">
         <DecisionTable
@@ -131,7 +148,23 @@ const DecisionPage = () => {
           onDetail={handleDetail}
           onEdit={handleEdit}
         />
-         <CustomPagination
+        <div className="flex justify-between items-center flex-wrap gap-2">
+        <ExcelImport
+          onImport={(decisions) => {
+            fetchData();
+            toast.success(`Đã import ${decisions.length} định mức thành công`);
+          }}
+          onImportResult={(result) => {
+            if (result.success > 0) {
+              console.log(`Import thành công: ${result.success} records`);
+            }
+            if (result.failed > 0) {
+              console.warn(`Import thất bại: ${result.failed} records`);
+              console.error("Lỗi chi tiết:", result.errors);
+            }
+          }}
+        />
+        <CustomPagination
           setTotalPages={setTotalPages}
           currentPage={pageIndex}
           totalPages={totalPages}
@@ -139,16 +172,15 @@ const DecisionPage = () => {
           onPageChange={(page) => setPageIndex(page)}
           onPageSizeChange={(size) => setPageSize(size)}
         />
+        </div>
       </div>
-      {
-        selectedDecision && (
-          <ModalDetailDecision
-            isOpen={isOpenDetail}
-            onClose={() => setIsOpenDetail(false)}
-            decision={selectedDecision as Decision}
-          />
-        )
-      }
+      {selectedDecision && (
+        <ModalDetailDecision
+          isOpen={isOpenDetail}
+          onClose={() => setIsOpenDetail(false)}
+          decision={selectedDecision as Decision}
+        />
+      )}
       <ModalCreateDecision
         onSubmit={handleSubmit}
         semesters={semesters}
