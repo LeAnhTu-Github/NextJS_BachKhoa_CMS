@@ -167,7 +167,7 @@ const ModalDetailDecision = ({
               )}
               {decision.estimationFeeDtos.map((estimation, idx) => (
                 <TableRow key={estimation.id} className="hover:bg-gray-50 h-15">
-                  <TableCell className="text-sm text-gray-700 pl-4 flex items-center justify-start">
+                  <TableCell className="text-sm h-15 text-gray-700 pl-4 flex items-center justify-start">
                     {idx + 1}
                   </TableCell>
                   <TableCell className="text-sm text-gray-700 pl-2 max-w-[250px] whitespace-normal">
