@@ -1,5 +1,5 @@
 // Enums for student management
-export enum Gender {
+export enum GenderType {
   MALE = "MALE",
   FEMALE = "FEMALE",
   OTHER = "OTHER"
@@ -154,7 +154,7 @@ export interface Student {
   ethnicity: string;
   expiryDate: string;
   fullName: string;
-  gender: Gender;
+  gender: GenderType;
   homeTown: string;
   id: number;
   major: Major;
@@ -208,9 +208,9 @@ export interface StudentQueryParams {
 }
 
 export const GENDER_OPTIONS = [
-  { value: Gender.MALE, label: "Nam" },
-  { value: Gender.FEMALE, label: "Nữ" },
-  { value: Gender.OTHER, label: "Khác" }
+  { value: GenderType.MALE, label: "Nam" },
+  { value: GenderType.FEMALE, label: "Nữ" },
+  { value: GenderType.OTHER, label: "Khác" }
 ];
 
 export const STUDENT_STATUS_OPTIONS = [
@@ -242,7 +242,7 @@ export interface StudentFormData {
   code: string;
   email: string;
   phone: string;
-  gender: Gender;
+  gender: GenderType;
   birthday: string;
   address: string;
   birthplace: string;
@@ -393,7 +393,7 @@ export interface HistoryStudentInfo {
   exemptionArea: string;
   expiryDate: string;
   fullName: string;
-  gender: Gender;
+  gender: GenderType;
   graduatedMajor: string;
   homeTown: string;
   id: number;

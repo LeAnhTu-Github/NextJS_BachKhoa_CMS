@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 export type StepItem = {
@@ -8,7 +7,6 @@ export type StepItem = {
 
 type CustomStepProps = {
   onNext?: () => void;
-  onBack?: () => void;
   steps: StepItem[];
   currentStep: number;
   setCurrentStep: (step: number) => void;
@@ -19,7 +17,6 @@ type CustomStepProps = {
 
 export default function CustomStep({
   onNext,
-  onBack,
   steps,
   currentStep,
   setCurrentStep,
@@ -28,7 +25,7 @@ export default function CustomStep({
   hideNavButtons = false,
 }: CustomStepProps) {
   const isLast = currentStep === steps.length - 1;
-  const isFirst = currentStep === 0;
+  // const isFirst = currentStep === 0;
 
   const handleNext = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -40,13 +37,13 @@ export default function CustomStep({
     }
   };
 
-  const handleBack = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    onBack?.();
-    if (!isFirst) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
+  // const handleBack = (e: React.MouseEvent<HTMLButtonElement>) => {
+  //   e.preventDefault();
+  //   onBack?.();
+  //   if (!isFirst) {
+  //     setCurrentStep(currentStep - 1);
+  //   }
+  // };
 
   return (
     <div className="flex gap-8">
@@ -57,7 +54,9 @@ export default function CustomStep({
             <div key={index} className="flex items-start gap-2 relative z-10">
               <div
                 className={`w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold ${
-                  isActive ? "bg-red-700 text-white" : "bg-gray-300 text-gray-700"
+                  isActive
+                    ? "bg-red-700 text-white"
+                    : "bg-gray-300 text-gray-700"
                 }`}
               >
                 {index + 1}
@@ -81,20 +80,19 @@ export default function CustomStep({
 
         {!hideNavButtons && (
           <div className="flex gap-2 justify-end pr-10">
-            {/* <Button
-              variant="outline"
-              onClick={handleBack}
-              disabled={isFirst}
-            >
-              Quay lại
-            </Button> */}
-            <Button
-              onClick={handleNext}
-              disabled={!isSelect}
-              className={`${isSelect ? "bg-redberry text-white" : "bg-gray-200 text-gray-400"}`}
-            >
-              {isLast ? "Hoàn tất" : "Tiếp tục"}
-            </Button>
+            {!isLast && (
+              <Button
+                onClick={handleNext}
+                disabled={!isSelect}
+                className={`${
+                  isSelect
+                    ? "bg-redberry text-white"
+                    : "bg-gray-200 text-gray-400"
+                }`}
+              >
+                Tiếp tục
+              </Button>
+            )}
           </div>
         )}
       </div>

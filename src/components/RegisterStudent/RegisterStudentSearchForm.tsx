@@ -1,9 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -13,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { RefreshCw, Search, Plus } from "lucide-react";
 import { Clazz, Exam, FEE_PAID_STATUS_OPTIONS, SEND_MAIL_STATUS_OPTIONS } from "@/types/RegisterStudentExam";
+import ConfirmDialog from "../ui/confirm-dialog";
 
 const formSchema = z.object({
   clazzId: z.number().optional(),
@@ -55,6 +55,9 @@ const RegisterStudentSearchForm = ({
       sendMailStatus: undefined,
     },
   });
+
+  const [isOpenSendMailFee, setIsOpenSendMailFee] = useState(false);
+  const [isOpenSendMailRefused, setIsOpenSendMailRefused] = useState(false);
   useEffect(() => {
     if (initialValues) {
       form.reset({
@@ -81,7 +84,7 @@ const RegisterStudentSearchForm = ({
   };
 
   return (
-    <div className="flex flex-col xl:flex-row gap-4 py-4">
+    <div className="flex flex-col 2xl:flex-row gap-4 py-4">
       <div className="flex items-center text-lg font-medium whitespace-nowrap">
         Danh sách người dùng
         <span className="ml-1 text-red-600 font-normal">({userCount})</span>
@@ -90,7 +93,7 @@ const RegisterStudentSearchForm = ({
       <div className="w-full flex justify-start xl:justify-end flex-wrap gap-4">
         <form
           onSubmit={form.handleSubmit(handleSearch)}
-          className="flex flex-col lg:flex-row gap-4 w-full"
+          className="flex flex-col 2xl:flex-row gap-4 w-full"
         >
           <div className="flex flex-col md:flex-row gap-4 flex-1 justify-end">
             <Controller
@@ -210,7 +213,7 @@ const RegisterStudentSearchForm = ({
               type="button"
               size="icon"
               className="h-10 w-10 bg-[#FFAE1F]"
-                onClick={onSendMailFee}
+              onClick={() => setIsOpenSendMailFee(true)}
               aria-label="Gửi email thông báo học phí"
             >
               <i className="mdi mdi-email-plus"></i>
@@ -219,7 +222,7 @@ const RegisterStudentSearchForm = ({
               type="button"
               size="icon"
               className="h-10 w-10 bg-[#F44336]"
-              onClick={onSendMailRefused}
+              onClick={() => setIsOpenSendMailRefused(true)}
               aria-label="Gửi email thông báo không đủ điều kiện"
             >
               <i className="mdi mdi-email-remove"></i>
@@ -227,6 +230,20 @@ const RegisterStudentSearchForm = ({
           </div>
         </form>
       </div>
+      <ConfirmDialog
+        isOpen={isOpenSendMailFee}
+        onOpenChange={setIsOpenSendMailFee}
+        title="Thông báo"
+        message="Gửi email thông báo được phép đóng phí bảo vệ lại"
+        onConfirm={() => onSendMailFee?.()}
+      />
+      <ConfirmDialog
+        isOpen={isOpenSendMailRefused}
+        onOpenChange={setIsOpenSendMailRefused}
+        title="Thông báo"
+        message="Gửi email thông báo từ chối đăng kí bảo vệ lại"
+        onConfirm={() => onSendMailRefused?.()}
+      />
     </div>
   );
 };

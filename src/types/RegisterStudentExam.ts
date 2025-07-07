@@ -14,7 +14,6 @@ export interface RegisterStudentExamResponse {
   endIndex: number;
   data: RegisterStudentExam[];
 }
-
 export interface RegisterStudentExamCreate {
   birthday: string;
   clazzId: number;
@@ -121,6 +120,8 @@ export interface registerStudentTerms {
   examSession: ExamSession | null;
   fee: number;
   feeDecision: number;
+  term: Term;
+  exam: Exam;
 }
 
 export interface Term {
@@ -220,6 +221,13 @@ export interface Major {
   status: string;
   educationProgram: EducationProgram;
 }
+export interface TrainingUnit {
+  address: string;
+  code: string;
+  id: number;
+  name: string;
+  status: string;
+}
 
 export interface EducationProgram {
   id: number;
@@ -228,6 +236,22 @@ export interface EducationProgram {
   status: string;
   terms: Term[] | null;
 }
+
+export interface RegisterRequest {
+  clazzId: number;
+  code: string;
+  courseId: number;
+  email: string;
+  examId: number;
+  examType: string;
+  fullName: string;
+  id: number;
+  majorId: number;
+  phone: string;
+  termCode: string;
+  termIds: number[];
+  totalFee: number;
+}
 export enum CreditStudentTuitionFeeManagement {
   WAIT_CONFIRM = "WAIT_CONFIRM",
   CONFIRMED = "CONFIRMED",
@@ -235,14 +259,20 @@ export enum CreditStudentTuitionFeeManagement {
 };
 
 export const CREDIT_STUDENT_TUITION_FEE_MANAGEMENT_OPTIONS = [
-  { value: CreditStudentTuitionFeeManagement.WAIT_CONFIRM, label: "Chờ xác nhận" },
-  { value: CreditStudentTuitionFeeManagement.CONFIRMED, label: "Đã xác nhận" },
-  { value: CreditStudentTuitionFeeManagement.REFUSED, label: "Từ chối" },
+  { value: CreditStudentTuitionFeeManagement.WAIT_CONFIRM, label: "Chờ xác nhận" , color: 'bg-[#ffae1f]'},
+  { value: CreditStudentTuitionFeeManagement.CONFIRMED, label: "Đã xác nhận" , color: 'bg-[#4caf50]'},
+  { value: CreditStudentTuitionFeeManagement.REFUSED, label: "Từ chối" , color: 'bg-redberry'},
+];
+
+export const MANAGEMENT_STATUS_OPTIONS = [
+  { value: CreditStudentTuitionFeeManagement.WAIT_CONFIRM, label: "Chờ duyệt" , color: 'bg-[#ffae1f]'},
+  { value: CreditStudentTuitionFeeManagement.CONFIRMED, label: "Đã duyệt" , color: 'bg-[#13DEB9]'},
+  { value: CreditStudentTuitionFeeManagement.REFUSED, label: "Từ chối" , color: 'bg-redberry'},
 ];
 
 export enum FeePaidStatus {
   NOT_PAID = "NOT_PAID",
-  // REFUSED_PAID = "REFUSED_PAID",
+  REFUSED_PAID = "REFUSED_PAID",
   PAID = "PAID",
 }
 
@@ -286,10 +316,34 @@ export const SEND_MAIL_STATUS_OPTIONS = [
   { value: SendMailStatus.NOT_SENT, label: "Chưa gửi", color: 'bg-[#ffae1f]' },
 ];
 
-export interface TrainingUnit {
-  address: string;
-  code: string;
-  id: number;
-  name: string;
-  status: string;
+
+export enum TrainingMethodStatus {
+  LT1 = "LT1",
+  CD = "CD",
+  DH = "DH",
 }
+export const TRAINING_METHOD_OPTIONS = [
+  { value: TrainingMethodStatus.LT1, label: "Liên tục" },
+  { value: TrainingMethodStatus.CD, label: "Cao đẳng" },
+  { value: TrainingMethodStatus.DH, label: "Đại học" },
+];
+
+export enum GenderType {
+  MALE = "MALE",
+  FEMALE = "FEMALE",
+}
+
+export interface ApiErrorResponse {
+  requestId: string;
+  at: string;
+  error: {
+    code: number;
+    message: string;
+  };
+  data: null;
+}
+
+export const GENDER_TYPE_OPTIONS = [
+  { value: GenderType.MALE, label: "Nam" },
+  { value: GenderType.FEMALE, label: "Nữ" },
+];

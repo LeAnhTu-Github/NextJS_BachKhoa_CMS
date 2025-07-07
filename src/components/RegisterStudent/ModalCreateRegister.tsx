@@ -6,9 +6,17 @@ import {
   getByStudent,
   getStudentList,
   getStudentListByRegister,
+  getListForRegister,
+  getEstimation,
 } from "@/services/RegisterStudentService";
-import { Student, Term, TermHistory } from "@/types/Student";
-import { GetByStudent, RegisterStudentExam } from "@/types/RegisterStudentExam";
+import { Student, TermHistory } from "@/types/Student";
+import { EstimationFeeDto } from "@/types/Decision";
+import {
+  GetByStudent,
+  GENDER_TYPE_OPTIONS,
+  RegisterStudentExam,
+  RegisterRequest,
+} from "@/types/RegisterStudentExam";
 import CourseListTable from "./CourseListTable";
 import {
   Select,
@@ -44,10 +52,16 @@ const ModalCreateRegister = ({
 }: ModalCreateRegisterProps) => {
   const [studentList, setStudentList] = useState<Student[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [selectedExam, setSelectedExam] = useState<GetByStudent | null>(null);
+  const [selectedTerm, setSelectedTerm] = useState<TermHistory | null>(null);
   const [step, setStep] = useState(0);
   const [byStudent, setByStudent] = useState<GetByStudent[]>([]);
   const [studentListbyId, setStudentListbyId] = useState<Student[]>([]);
+  const [totalFee, setTotalFee] = useState(0);
   const [term, setTerm] = useState<TermHistory[]>([]);
+  const [termResponse, setTermResponse] = useState<TermHistory | null>(null);
+  const [estimation, setEstimation] = useState<EstimationFeeDto | null>(null);
+  const [selectedCourseItem, setSelectedCourseItem] = useState<number[]>([]);
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -90,12 +104,37 @@ const ModalCreateRegister = ({
       console.log(error);
     }
   };
+  const fetchListForRegister = async (termCode: string) => {
+    try {
+      const res = await getListForRegister(termCode);
+      setTermResponse(res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchEstimation = async (
+    majorId: number,
+    semesterId: number,
+    trainingMethodId: number
+  ) => {
+    try {
+      const res = await getEstimation(majorId, semesterId, trainingMethodId);
+      setEstimation(res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
       fetchListStudent();
       setStep(0);
       setSelectedStudent(null);
+      setSelectedExam(null);
+      setSelectedTerm(null);
+      setSelectedCourseItem([]);
+      setTotalFee(0);
       form.reset();
     }
   }, [isOpen]);
@@ -107,24 +146,47 @@ const ModalCreateRegister = ({
     }
   }, [step, selectedStudent]);
 
+  useEffect(() => {
+    if (step === 1 && selectedExam && selectedTerm && selectedStudent) {
+      fetchListForRegister(selectedTerm.code);
+      fetchEstimation(
+        selectedStudent?.majorId || 0,
+        selectedExam.semester.id,
+        selectedStudent?.trainingMethodId || 0
+      );
+      setSelectedCourseItem([]);
+      setTotalFee(0);
+    }
+  }, [step, selectedExam, selectedTerm, selectedStudent]);
   const handleSelectStudent = (studentCode: string) => {
     const student = studentList.find((s) => s.code === studentCode) || null;
     setSelectedStudent(student);
   };
 
+  const handleSelectExam = (examId: string) => {
+    const exam =
+      byStudent.find((item) => item.id.toString() === examId) || null;
+    setSelectedExam(exam);
+  };
+
+  const handleSelectTerm = (termId: string) => {
+    const termItem = term.find((item) => item.id.toString() === termId) || null;
+    setSelectedTerm(termItem);
+  };
+
   const handleFormSubmit = (data: FormValues) => {
-    if (!selectedStudent) return;
+    if (!selectedStudent || !selectedCourseItem) return;
     onSubmit({
       code: selectedStudent.code,
       fullName: selectedStudent.fullName,
       clazzId: data.clazzId,
       examId: data.examId,
       termId: data.termId,
+      courseItem: selectedCourseItem,
     } as any);
   };
 
   const handleNext = () => setStep(step + 1);
-  const handleBack = () => setStep(step - 1);
   const step1Content = (
     <div className="flex flex-col items-center justify-end w-full min-h-[150px]">
       <h2 className="text-sm font-normal text-redberry mb-6 text-center">
@@ -167,38 +229,87 @@ const ModalCreateRegister = ({
             </div>
             <div className="flex flex-col gap-2 text-base mt-2">
               <div>
-                <span className="font-medium">Họ tên:</span>{" "}
-                <span className="text-[#991B1B]">
+                <span className="font-normal text-sm text-[#0000000DE]">
+                  Họ tên:
+                </span>{" "}
+                <span className="text-[#991B1B] text-[15px]">
                   {selectedStudent.fullName}
                 </span>
               </div>
               <div>
-                <span className="font-medium">Email trường:</span>{" "}
-                <span className="text-[#991B1B]">{selectedStudent.email}</span>
+                <span className="font-normal text-sm text-[#0000000DE]">
+                  Ngày sinh:
+                </span>{" "}
+                <span className="text-[#991B1B] text-[15px]">
+                  {selectedStudent.birthday?.split(" ")[0]}
+                </span>
               </div>
               <div>
-                <span className="font-medium">Khóa:</span>{" "}
-                <span className="text-[#991B1B]">
+                <span className="font-normal text-sm text-[#0000000DE]">
+                  Giới tính:
+                </span>{" "}
+                <span className="text-[#991B1B] text-[15px]">
+                  {
+                    GENDER_TYPE_OPTIONS.find(
+                      (item) => selectedStudent.gender === item.value
+                    )?.label
+                  }
+                </span>
+              </div>
+              <div>
+                <span className="font-normal text-sm text-[#0000000DE]">
+                  Email trường:
+                </span>{" "}
+                <span className="text-[#991B1B] text-[15px]">
+                  {selectedStudent.email}
+                </span>
+              </div>
+              <div>
+                <span className="font-normal text-sm text-[#0000000DE]">
+                  Email cá nhân:
+                </span>{" "}
+                <span className="text-[#991B1B] text-[15px]">
+                  {selectedStudent.emailOther}
+                </span>
+              </div>
+              <div>
+                <span className="font-normal text-sm text-[#0000000DE]">
+                  Số điện thoại:
+                </span>{" "}
+                <span className="text-[#991B1B] text-[15px]">
+                  {selectedStudent.phone}
+                </span>
+              </div>
+              <div>
+                <span className="font-normal text-sm text-[#0000000DE]">
+                  Khóa:
+                </span>{" "}
+                <span className="text-[#991B1B] text-[15px]">
                   {selectedStudent.courseName || selectedStudent.course?.name}
                 </span>
               </div>
               <div>
-                <span className="font-medium">Lớp:</span>{" "}
-                <span className="text-[#991B1B]">
+                <span className="font-normal text-sm text-[#0000000DE]">
+                  Lớp:
+                </span>{" "}
+                <span className="text-[#991B1B] text-[15px]">
                   {selectedStudent.className || selectedStudent.classes?.name}
                 </span>
               </div>
               <div>
-                <span className="font-medium">Ngành:</span>{" "}
-                <span className="text-[#991B1B]">
+                <span className="font-normal text-sm text-[#0000000DE]">
+                  Ngành:
+                </span>{" "}
+                <span className="text-[#991B1B] text-[15px]">
                   {selectedStudent.majorName || selectedStudent.major?.name}
                 </span>
               </div>
               <div>
-                <span className="font-medium">Loại hình đào tạo:</span>{" "}
-                <span className="text-[#991B1B]">
-                  {selectedStudent.trainingTypeName ||
-                    selectedStudent.trainingType?.name}
+                <span className="font-normal text-sm text-[#0000000DE]">
+                  Loại hình đào tạo:
+                </span>{" "}
+                <span className="text-[#991B1B] text-[15px]">
+                  {selectedStudent.trainingMethodName}
                 </span>
               </div>
             </div>
@@ -219,8 +330,8 @@ const ModalCreateRegister = ({
           control={form.control}
           render={({ field }) => (
             <Select
-              value={field.value ? String(field.value) : ""}
-              onValueChange={(v) => field.onChange(Number(v))}
+              value={selectedExam?.id.toString() || ""}
+              onValueChange={handleSelectExam}
               aria-label="Đợt bảo vệ lại"
             >
               <SelectTrigger
@@ -245,8 +356,8 @@ const ModalCreateRegister = ({
           control={form.control}
           render={({ field }) => (
             <Select
-              value={field.value ? String(field.value) : ""}
-              onValueChange={(v) => field.onChange(Number(v))}
+              value={selectedTerm?.id.toString() || ""}
+              onValueChange={handleSelectTerm}
               aria-label="Học phần"
             >
               <SelectTrigger
@@ -269,17 +380,19 @@ const ModalCreateRegister = ({
       </div>
       <div className="w-full">
         <div className="font-normal text-sm mb-2">
-          Danh sách học phần <span className="text-[#991B1B]">(0)</span>
+          Danh sách học phần <span className="text-[#991B1B]">{selectedCourseItem.length}</span>
         </div>
         <CourseListTable
-          courses={[]}
-          selectedIds={[]}
-          onSelect={() => {}}
-          onSelectAll={() => {}}
+          termResponse={termResponse || null}
+          estimation={estimation || null}
+          selectedStudent={selectedStudent || null}
+          selectedIds={selectedCourseItem}
+          onSelect={setSelectedCourseItem}
+          setTotalFee={setTotalFee}
         />
         <div className="flex justify-end mt-4">
           <span className="font-normal text-sm">
-            Tổng tiền: <span className="text-[#991B1B]">{0} VNĐ</span>
+            Tổng tiền: <span className="text-[#991B1B]">{totalFee} VNĐ</span>
           </span>
         </div>
       </div>
@@ -305,7 +418,6 @@ const ModalCreateRegister = ({
       message={
         <CustomStep
           onNext={handleNext}
-          onBack={handleBack}
           steps={steps}
           isSelect={!!selectedStudent}
           currentStep={step}

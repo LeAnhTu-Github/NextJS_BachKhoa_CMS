@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Gender,
+  GenderType,
   StudentStatus,
   GENDER_OPTIONS,
   STUDENT_STATUS_OPTIONS,
@@ -36,7 +36,7 @@ const formSchema = z.object({
   courseId: z.number().min(1, "Khóa học là bắt buộc"),
   classId: z.number().min(1, "Lớp là bắt buộc"),
   phone: z.string().optional(),
-  gender: z.nativeEnum(Gender).optional(),
+  gender: z.nativeEnum(GenderType).optional(),
   birthday: z.string().optional().nullable(),
   address: z.string().optional(),
   birthplace: z.string().optional(),
@@ -85,7 +85,7 @@ const ModalUpdateStudent = ({
       code: "",
       email: "",
       phone: "",
-      gender: Gender.MALE,
+      gender: GenderType.MALE,
       birthday: "",
       address: "",
       birthplace: "",
@@ -114,7 +114,7 @@ const ModalUpdateStudent = ({
         code: student.code || "",
         email: student.email || "",
         phone: student.phone || "",
-        gender: student.gender || Gender.MALE,
+        gender: student.gender || GenderType.MALE,
         birthday: student.birthday || "",
         address: student.address || "",
         birthplace: student.birthplace || "",
@@ -307,7 +307,7 @@ const ModalUpdateStudent = ({
                     <Select
                       value={form.watch("gender")}
                       onValueChange={(value) =>
-                        form.setValue("gender", value as Gender)
+                        form.setValue("gender", value as GenderType)
                       }
                     >
                       <SelectTrigger

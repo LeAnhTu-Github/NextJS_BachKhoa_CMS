@@ -5,6 +5,8 @@ import {
   getListRegister,
   sendMailFee,
   sendMailRefused,
+  exportByCode,
+  deleteRegister,
 } from "@/services/RegisterStudentService";
 import {
   RegisterStudentExam,
@@ -12,6 +14,7 @@ import {
   Exam,
   SendMailStatus,
   FeePaidStatus,
+  ApiErrorResponse,
 } from "@/types/RegisterStudentExam";
 import ModalCreateRegister from "@/components/RegisterStudent/ModalCreateRegister";
 import RegisterStudentSearchForm, {
@@ -22,6 +25,7 @@ import { toast } from "sonner";
 import RegisterStudentTable from "@/components/RegisterStudent/TableRegisterStudent";
 import CustomPagination from "@/components/ui/custom-pagination";
 import ModalDetailRegister from "@/components/RegisterStudent/ModalDetailRegister";
+import ModalTableScore from "@/components/RegisterStudent/ModalTableScore";
 
 const RegisterStudentPage = () => {
   const [searchParams, setSearchParams] = useState<FormValues>({
@@ -38,6 +42,7 @@ const RegisterStudentPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenDetail, setIsOpenDetail] = useState(false);
+  const [isOpenTableScore, setIsOpenTableScore] = useState(false);
   const [registerStudent, setRegisterStudent] =
     useState<RegisterStudentExam | null>(null);
   const [classes, setClasses] = useState<Clazz[]>([]);
@@ -111,26 +116,66 @@ const RegisterStudentPage = () => {
 
   const handleSendMailFee = async () => {
     try {
-      const response = await sendMailFee();
+      await sendMailFee();
       toast.success("Gửi email thành công");
     } catch (error) {
-      toast.error("Lỗi khi gửi email" + error);
+      const apiError = error as { response?: { data?: ApiErrorResponse } };
+      const errorMessage =
+        apiError?.response?.data?.error?.message || "Lỗi khi gửi email";
+      toast.error(errorMessage);
     }
   };
   const handleSendMailRefused = async () => {
     try {
-      const response = await sendMailRefused();
+      await sendMailRefused();
       toast.success("Gửi email thành công");
     } catch (error) {
-      toast.error("Lỗi khi gửi email" + error);
+      const apiError = error as { response?: { data?: ApiErrorResponse } };
+      const errorMessage =
+        apiError?.response?.data?.error?.message || "Lỗi khi gửi email";
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleExportByCode = async (code: number) => {
+    try {
+      const response = await exportByCode(code);
+      if (response?.url) {
+        const link = document.createElement("a");
+        link.href = response.url;
+        link.download = response.fileName || "export.xlsx";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success("Tải xuống file thành công");
+      } else {
+        toast.error("Không tìm thấy file để tải xuống");
+      }
+    } catch (error) {
+      toast.error("Lỗi khi xuất file" + error);
     }
   };
   const handleDetail = (registerStudent: RegisterStudentExam) => {
     setRegisterStudent(registerStudent);
     setIsOpenDetail(true);
   };
-  const handleEdit = (registerStudent: RegisterStudentExam) => {
-    console.log("handleEdit", registerStudent);
+
+  const handleTableScore = (registerStudent: RegisterStudentExam) => {
+    setRegisterStudent(registerStudent);
+    setIsOpenTableScore(true);
+  };
+
+  const handleDelete = async (code: number) => {
+    try {
+      await deleteRegister(code);
+      toast.success("Xóa sinh viên đăng ký thành công");
+      onRefresh();
+    } catch (error) {
+      const apiError = error as { response?: { data?: ApiErrorResponse } };
+      const errorMessage =
+        apiError?.response?.data?.error?.message || "Lỗi khi xóa sinh viên đăng ký";
+      toast.error(errorMessage);
+    }
   };
   const handleSubmit = (data: RegisterStudentExam) => {
     console.log("handleSubmit", data);
@@ -149,13 +194,15 @@ const RegisterStudentPage = () => {
           onSendMailFee={handleSendMailFee}
           onSendMailRefused={handleSendMailRefused}
         />
-        <div className="w-full flex flex-col gap-3 max-h-[calc(100vh-250px)] overflow-y-auto">
+        <div className="w-full flex flex-col gap-3 max-h-[calc(100vh-250px)] overflow-auto">
           <RegisterStudentTable
             registerStudent={data}
             isLoading={isLoading}
+            onExportByCode={handleExportByCode}
             onRefresh={onRefresh}
             onDetail={handleDetail}
-            onEdit={handleEdit}
+            onTableScore={handleTableScore}
+            onDelete={handleDelete}
           />
         </div>
         <CustomPagination
@@ -177,6 +224,13 @@ const RegisterStudentPage = () => {
         <ModalDetailRegister
           isOpen={isOpenDetail}
           onClose={() => setIsOpenDetail(false)}
+          registerStudent={registerStudent as RegisterStudentExam}
+        />
+      )}
+      {registerStudent && (
+        <ModalTableScore
+          isOpen={isOpenTableScore}
+          onClose={() => setIsOpenTableScore(false)}
           registerStudent={registerStudent as RegisterStudentExam}
         />
       )}

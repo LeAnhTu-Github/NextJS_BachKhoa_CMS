@@ -18,32 +18,55 @@ import axios from "axios";
 import {
   changeStatusRegister,
   deleteRegister,
+  UpdateApprovedCredit,
+  UpdateApprovedTuitionFee,
+  UpdateApprovedStudent
 } from "@/services/RegisterStudentService";
 import {
   RegisterStudentExam,
   RegisterStudentStatus,
+  CreditStudentTuitionFeeManagement,
 } from "@/types/RegisterStudentExam";
 import RegisterActionDropdown from "./RegisterActionDropdown";
-
+export const getCurrentAction = (registerStudent: RegisterStudentExam) => {
+  const { creditManagement, tuitionFeeManagement, studentManagement } = registerStudent;
+  if (creditManagement === CreditStudentTuitionFeeManagement.WAIT_CONFIRM) {
+    return 'credit';
+  }
+  if (creditManagement !== CreditStudentTuitionFeeManagement.WAIT_CONFIRM && 
+      tuitionFeeManagement === CreditStudentTuitionFeeManagement.WAIT_CONFIRM) {
+    return 'tuitionFee';
+  }
+  if (creditManagement !== CreditStudentTuitionFeeManagement.WAIT_CONFIRM && 
+      tuitionFeeManagement !== CreditStudentTuitionFeeManagement.WAIT_CONFIRM && 
+      studentManagement === CreditStudentTuitionFeeManagement.WAIT_CONFIRM) {
+    return 'student';
+  }
+  return 'completed';
+};
 interface RegisterStudentTableProps {
   registerStudent: RegisterStudentExam[];
   isLoading: boolean;
   onRefresh: () => void;
+  onExportByCode: (code: number) => void;
   onDetail: (registerStudent: RegisterStudentExam) => void;
-  onEdit: (registerStudent: RegisterStudentExam) => void;
+  onTableScore: (registerStudent: RegisterStudentExam) => void;
+  onDelete: (code: number) => void;
 }
 
 type SelectedRegisterStudentAction = {
   registerStudent: RegisterStudentExam;
-  action: "delete" | "detail" | "edit" | null;
+  action: "delete" | "detail"| null;
 } | null;
 
 const RegisterStudentTable = ({
   registerStudent,
   isLoading,
   onRefresh,
+  onExportByCode,
   onDetail,
-  onEdit,
+  onTableScore,
+  onDelete,
 }: RegisterStudentTableProps) => {
   const [selectedRegisterStudent, setSelectedRegisterStudent] = useState<{
     id: number;
@@ -53,7 +76,6 @@ const RegisterStudentTable = ({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedRegisterStudentAction, setSelectedRegisterStudentAction] =
     useState<SelectedRegisterStudentAction>(null);
-
   const handleConfirmStatusChange = async (id: number, newStatus: string) => {
     try {
       await changeStatusRegister(id, newStatus as RegisterStudentStatus);
@@ -87,19 +109,7 @@ const RegisterStudentTable = ({
 
   const handleConfirmDelete = async () => {
     if (selectedRegisterStudentAction?.registerStudent) {
-      try {
-        await deleteRegister(selectedRegisterStudentAction.registerStudent.id);
-        toast.success("Xóa kỳ thi lại thành công");
-        onRefresh();
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          toast.error(
-            error.response?.data?.message || "Xóa kỳ thi lại thất bại"
-          );
-        } else {
-          toast.error("Xóa kỳ thi lại thất bại");
-        }
-      }
+      onDelete(Number(selectedRegisterStudentAction.registerStudent.id));
       setIsDeleteDialogOpen(false);
       setSelectedRegisterStudentAction(null);
     }
@@ -114,19 +124,47 @@ const RegisterStudentTable = ({
     }
   };
 
-  const handleEdit = (registerStudentId: number) => {
-    const registerStudentItem = registerStudent.find(
-      (e) => e.id === registerStudentId
-    );
-    if (registerStudentItem) {
-      onEdit(registerStudentItem);
-    }
-  };
+  // const handleEdit = (registerStudentId: number) => {
+  //   const registerStudentItem = registerStudent.find(
+  //     (e) => e.id === registerStudentId
+  //   );
+  //   if (registerStudentItem) {
+  //     onEdit(registerStudentItem);
+  //   }
+  // };
 
-  const handleStatusChange = (registerStudentId: number, newStatus: string) => {
-    setSelectedRegisterStudent({ id: registerStudentId, newStatus });
-    setIsDialogOpen(true);
-  };
+  // const handleStatusChange = (registerStudentId: number, newStatus: string) => {
+  //   setSelectedRegisterStudent({ id: registerStudentId, newStatus });
+  //   setIsDialogOpen(true);
+  // };
+
+const handleConfirmTuitionFee = async (registerStudentId: number, status: CreditStudentTuitionFeeManagement) => {
+  try {
+    const registerStudentItem = registerStudent.find(item => item.id === registerStudentId);
+    if (!registerStudentItem) return;
+    const currentAction = getCurrentAction(registerStudentItem);
+    switch (currentAction) {
+      case 'credit':
+        await UpdateApprovedCredit(registerStudentId, status);
+        break;
+      case 'tuitionFee':
+        await UpdateApprovedTuitionFee(registerStudentId, status);
+        break;
+      case 'student':
+        await UpdateApprovedStudent(registerStudentId, status);
+        break;
+      default:
+        return;
+    }
+    
+    toast.success("Cập nhật trạng thái thành công");
+    onRefresh();
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      toast.error(error.response?.data?.message || "Cập nhật trạng thái thất bại");
+    }
+  }
+};
 
   if (isLoading) {
     return (
@@ -312,13 +350,13 @@ const RegisterStudentTable = ({
               <div className="flex justify-between items-center text-sm py-1">
                 <span className="font-medium text-gray-600">Chức năng</span>
                 <RegisterActionDropdown
+                  registerStudent={registerStudentItem}
                   onDetail={() => handleDetail(registerStudentItem.id)}
-                  onAssignClass={() => {}}
-                  onPermission={() => {}}
-                  onManageClass={() => {}}
-                  onUpdate={() => onEdit(registerStudentItem)}
-                  onResetPassword={() => {}}
+                  onConfirmTuitionFee={() => handleConfirmTuitionFee(registerStudentItem.id, CreditStudentTuitionFeeManagement.CONFIRMED)}
+                  onRefuseTuitionFee={() => handleConfirmTuitionFee(registerStudentItem.id, CreditStudentTuitionFeeManagement.REFUSED)}
+                  onExportByCode={() => onExportByCode(registerStudentItem.id)}
                   onDelete={() => handleDelete(registerStudentItem.id)}
+                  onTableScore={() => onTableScore(registerStudentItem)}
                   trigger={
                     <button
                       className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 focus:outline-none"
@@ -449,13 +487,13 @@ const RegisterStudentTable = ({
                 </TableCell>
                 <TableCell className="flex justify-center items-center">
                   <RegisterActionDropdown
+                    registerStudent={registerStudentItem}
                     onDetail={() => handleDetail(registerStudentItem.id)}
-                    onAssignClass={() => {}}
-                    onPermission={() => {}}
-                    onManageClass={() => {}}
-                    onUpdate={() => onEdit(registerStudentItem)}
-                    onResetPassword={() => {}}
+                    onConfirmTuitionFee={() => handleConfirmTuitionFee(registerStudentItem.id, CreditStudentTuitionFeeManagement.CONFIRMED)}
+                    onRefuseTuitionFee={() => handleConfirmTuitionFee(registerStudentItem.id, CreditStudentTuitionFeeManagement.REFUSED)}
+                    onExportByCode={() => onExportByCode(registerStudentItem.id)}
                     onDelete={() => handleDelete(registerStudentItem.id)}
+                    onTableScore={() => onTableScore(registerStudentItem)}
                     trigger={
                       <button
                         className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 focus:outline-none"
@@ -512,7 +550,7 @@ const RegisterStudentTable = ({
         title="Xác nhận xóa"
         message={
           <p className="text-[16px] text-gray-600">
-            Bạn có chắc chắn muốn xóa kỳ thi lại{" "}
+            Xác nhận xóa sinh viên đăng ký{" "}
             <span className="font-semibold text-red-700">
               {selectedRegisterStudentAction?.registerStudent.fullName}
             </span>{" "}
