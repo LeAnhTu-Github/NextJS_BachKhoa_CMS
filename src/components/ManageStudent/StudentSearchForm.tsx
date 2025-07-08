@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ConfirmDialog from "../ui/confirm-dialog";
 import {
-  Gender,
+  GenderType,
   STUDENT_STATUS_OPTIONS,
   GENDER_OPTIONS,
 } from "@/types/Student";
@@ -215,7 +215,7 @@ const StudentSearchForm = ({
                   <Label htmlFor="genderId">Giới tính:</Label>
                   <Select
                     onValueChange={(value) =>
-                      form.setValue("gender", value as Gender)
+                      form.setValue("gender", value as GenderType)
                     }
                     value={form.watch("gender") || undefined}
                   >

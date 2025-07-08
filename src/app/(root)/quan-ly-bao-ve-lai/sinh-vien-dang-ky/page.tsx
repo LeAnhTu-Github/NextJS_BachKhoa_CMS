@@ -16,6 +16,7 @@ import {
   FeePaidStatus,
   ApiErrorResponse,
 } from "@/types/RegisterStudentExam";
+import { RegisterStudentExamSubmit } from "@/components/RegisterStudent/ModalCreateRegister";
 import ModalCreateRegister from "@/components/RegisterStudent/ModalCreateRegister";
 import RegisterStudentSearchForm, {
   FormValues,
@@ -177,7 +178,7 @@ const RegisterStudentPage = () => {
       toast.error(errorMessage);
     }
   };
-  const handleSubmit = (data: RegisterStudentExam) => {
+  const handleSubmit = (data: RegisterStudentExamSubmit) => {
     console.log("handleSubmit", data);
   };
   return (

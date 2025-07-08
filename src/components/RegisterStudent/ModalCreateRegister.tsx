@@ -14,8 +14,6 @@ import { EstimationFeeDto } from "@/types/Decision";
 import {
   GetByStudent,
   GENDER_TYPE_OPTIONS,
-  RegisterStudentExam,
-  RegisterRequest,
 } from "@/types/RegisterStudentExam";
 import CourseListTable from "./CourseListTable";
 import {
@@ -35,11 +33,19 @@ export const formSchema = z.object({
   clazzId: z.number().min(1, "Lớp là bắt buộc"),
 });
 
+export interface RegisterStudentExamSubmit {
+  code: string;
+  fullName: string;
+  clazzId: number;
+  examId: number;
+  termId: number;
+  courseItem: number[];
+}
 type FormValues = z.infer<typeof formSchema>;
 
 interface ModalCreateRegisterProps {
   isOpen: boolean;
-  onSubmit: (data: RegisterStudentExam) => void;
+  onSubmit: (data: RegisterStudentExamSubmit) => void;
   onOpenChange: (open: boolean) => void;
   isLoading?: boolean;
 }
@@ -112,7 +118,7 @@ const ModalCreateRegister = ({
       console.log(error);
     }
   };
-
+  console.log(studentListbyId)
   const fetchEstimation = async (
     majorId: number,
     semesterId: number,
@@ -183,7 +189,7 @@ const ModalCreateRegister = ({
       examId: data.examId,
       termId: data.termId,
       courseItem: selectedCourseItem,
-    } as any);
+    });
   };
 
   const handleNext = () => setStep(step + 1);
@@ -328,7 +334,7 @@ const ModalCreateRegister = ({
         <Controller
           name="termId"
           control={form.control}
-          render={({ field }) => (
+          render={() => (
             <Select
               value={selectedExam?.id.toString() || ""}
               onValueChange={handleSelectExam}
@@ -354,7 +360,7 @@ const ModalCreateRegister = ({
         <Controller
           name="clazzId"
           control={form.control}
-          render={({ field }) => (
+          render={() => (
             <Select
               value={selectedTerm?.id.toString() || ""}
               onValueChange={handleSelectTerm}

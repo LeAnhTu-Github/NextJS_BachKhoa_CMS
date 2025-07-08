@@ -17,7 +17,6 @@ import { toast } from "sonner";
 import axios from "axios";
 import {
   changeStatusRegister,
-  deleteRegister,
   UpdateApprovedCredit,
   UpdateApprovedTuitionFee,
   UpdateApprovedStudent
@@ -227,7 +226,7 @@ const handleConfirmTuitionFee = async (registerStudentId: number, status: Credit
       </span>
     );
   };
-
+  console.log(1111, selectedRegisterStudent)
   return (
     <>
       <div className="block sm:hidden space-y-4">
