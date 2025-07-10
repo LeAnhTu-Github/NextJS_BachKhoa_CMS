@@ -76,7 +76,7 @@ const ModalCreateRegister = ({
       clazzId: 0,
     },
   });
-
+  console.log(1111, studentListbyId)
   const fetchListStudent = async () => {
     try {
       const res = await getStudentList();
@@ -118,7 +118,6 @@ const ModalCreateRegister = ({
       console.log(error);
     }
   };
-  console.log(studentListbyId)
   const fetchEstimation = async (
     majorId: number,
     semesterId: number,
@@ -182,6 +181,8 @@ const ModalCreateRegister = ({
 
   const handleFormSubmit = (data: FormValues) => {
     if (!selectedStudent || !selectedCourseItem) return;
+    console.log(1111, selectedCourseItem)
+    console.log(2222, selectedStudent)
     onSubmit({
       code: selectedStudent.code,
       fullName: selectedStudent.fullName,
@@ -432,7 +433,7 @@ const ModalCreateRegister = ({
           onFinish={() => form.handleSubmit(handleFormSubmit)()}
         />
       }
-      onConfirm={() => form.handleSubmit(handleFormSubmit)()}
+      onConfirm={form.handleSubmit(handleFormSubmit)}
       onCancel={() => onOpenChange(false)}
       isLoading={isLoading}
     />

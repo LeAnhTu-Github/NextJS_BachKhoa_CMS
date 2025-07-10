@@ -123,6 +123,8 @@ const RegisterStudentTable = ({
     }
   };
 
+  console.log(1111, selectedRegisterStudent)
+
   // const handleEdit = (registerStudentId: number) => {
   //   const registerStudentItem = registerStudent.find(
   //     (e) => e.id === registerStudentId
@@ -226,7 +228,6 @@ const handleConfirmTuitionFee = async (registerStudentId: number, status: Credit
       </span>
     );
   };
-  console.log(1111, selectedRegisterStudent)
   return (
     <>
       <div className="block sm:hidden space-y-4">

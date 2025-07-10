@@ -26,7 +26,6 @@ interface SelectItem {
 }
 
 const CourseListTable = ({
-  selectedStudent,
   setTotalFee,
   termResponse,
   estimation,
@@ -47,7 +46,6 @@ const CourseListTable = ({
   };
 
   const isAllSelected = result.length > 0 && result.every((item) => isItemSelected(item.term.id));
-  console.log(11111,selectedStudent);
   const handleSelect = (item: SelectItem) => {
     const termId = item.term.id;
     const newSelectedIds = isItemSelected(termId)
